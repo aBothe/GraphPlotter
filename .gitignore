@@ -1,0 +1,13 @@
+*/obj/*
+*/bin/*
+*.suo
+*.user
+build/index.html
+build/*.m*
+*.pidb
+*.userprefs
+*.orig
+
+*.DS_Store
+.DS_Store
+DS_Store
