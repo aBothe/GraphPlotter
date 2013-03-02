@@ -13,11 +13,21 @@ namespace GraphPlotter.Plotting
 	{
 		ILGenerator ilGen;
 		MethodInfo MathPow;
+		Dictionary<string, MethodInfo> SingleArgMathFunctions = new Dictionary<string, MethodInfo>();
 		Dictionary<string, double> Constants = new Dictionary<string, double>();
 
 		ExpressionCompiler()
 		{
-			MathPow = typeof(Math).GetMethod("Pow", new[]{ typeof(double), typeof(double) });
+			var math = typeof(Math);
+			var dbl = typeof(double);
+			MathPow = math.GetMethod("Pow", new[]{ dbl,dbl });
+			
+			SingleArgMathFunctions["sin"] = math.GetMethod("Sin", new[] { dbl });
+			SingleArgMathFunctions["tan"] = math.GetMethod("Tan", new[] { dbl });
+			SingleArgMathFunctions["cos"] = math.GetMethod("Cos", new[] { dbl });
+			SingleArgMathFunctions["abs"] = math.GetMethod("Abs", new[] { dbl });
+			SingleArgMathFunctions["ln"] = math.GetMethod("Log", new[] { dbl });
+			SingleArgMathFunctions["log"] = math.GetMethod("Log10", new[] { dbl });
 		}
 
 		public static DynamicMethod Compile(string name,IExpression x)
@@ -294,7 +304,38 @@ namespace GraphPlotter.Plotting
 
 		public void Visit(PostfixExpression_MethodCall x)
 		{
-			throw new NotImplementedException();
+			if (x.Arguments == null || x.ArgumentCount != 1)
+				throw new ArgumentException("Currently there are only functions with exactly one argument supported!");
+
+			if (x.PostfixForeExpression is IdentifierExpression)
+			{
+				var idx = x.PostfixForeExpression as IdentifierExpression;
+
+				if (!idx.IsIdentifier)
+					throw new ArgumentException("Method Identifier expected.");
+
+				MethodInfo mi;
+				if (!SingleArgMathFunctions.TryGetValue((idx.Value as string).ToLower(), out mi))
+				{
+					var sb = new StringBuilder("Unknown method. Only ");
+
+					foreach (var k in SingleArgMathFunctions.Keys)
+						sb.Append(k).Append(",");
+
+					sb.Remove(sb.Length - 1, 1);
+
+					sb.Append(" will be accepted!");
+
+					throw new ArgumentException(sb.ToString());
+				}
+
+				x.Arguments[0].Accept(this);
+
+				ilGen.EmitCall(OpCodes.Call, mi, null);
+				return;
+			}
+
+			throw new ArgumentException("Single identifier as method expected, not "+x.PostfixForeExpression.ToString());
 		}
 
 		public bool TryEvalConstIdentifier(IdentifierExpression x, out double d)
