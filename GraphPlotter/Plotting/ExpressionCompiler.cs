@@ -274,12 +274,13 @@ namespace GraphPlotter.Plotting
 
 		public void Visit(UnaryExpression_Add x)
 		{
-			throw new NotImplementedException();
+			x.UnaryExpression.Accept(this);
 		}
 
 		public void Visit(UnaryExpression_Sub x)
 		{
-			throw new NotImplementedException();
+			x.UnaryExpression.Accept(this);
+			ilGen.Emit(OpCodes.Neg);
 		}
 
 		public void Visit(UnaryExpression_Not x)
