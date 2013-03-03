@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xwt;
+using Xwt.Backends;
 using Xwt.Drawing;
 
 namespace GraphPlotter.Plotting
@@ -18,6 +19,10 @@ namespace GraphPlotter.Plotting
 		public Point BaseLocation;
 		public double Scale_X = 1;
 		public double Scale_Y = 1;
+
+		public double MovingDelta = 1;
+		public double ScalingDelta = 0.1;
+
 
 		public static double DotsPerCentimeter = 40; // ISSUE: Assume 96 as actual (dots per inch) number - It's windows standard
 
@@ -36,8 +41,12 @@ namespace GraphPlotter.Plotting
 
 		public PlotCanvas()
 		{
+			var bk = Widget.GetWidgetBackend(this);
+			bk.EnableEvent(WidgetEvent.KeyPressed);
+			bk.EnableEvent(WidgetEvent.KeyReleased);
+			
 			Graphs.Add(Function.Parse("-(x^^2)", "f"));
-			Graphs.Add(Function.Parse("sin(x)", "g"));
+			Graphs.Add(Function.Parse("abs(sin(x))", "g"));
 
 			BaseLocation = new Point(0,0);
 		}
@@ -45,8 +54,9 @@ namespace GraphPlotter.Plotting
 		#region Drawing
 		protected override void OnDraw(Context ctxt, Rectangle dirtyRect)
 		{
-			if (moving)
+			if (clearBackground)
 			{
+				clearBackground = false;
 				ctxt.SetColor(Colors.White);
 				ctxt.Rectangle(dirtyRect);
 				ctxt.Fill();
@@ -184,6 +194,8 @@ namespace GraphPlotter.Plotting
 		#endregion
 
 		#region Scaling
+		bool scaleOnScroll = false;
+		bool clearBackground = false;
 		bool moving;
 		Point triggerPos;
 
@@ -222,10 +234,82 @@ namespace GraphPlotter.Plotting
 				BaseLocation = new Point(newX, newY);
 				triggerPos = new Point(args.X, args.Y);
 
+				clearBackground = true;
 				QueueDraw();
 			}
 
 			
+		}
+
+		protected override void OnMouseScrolled(MouseScrolledEventArgs args)
+		{
+			switch (args.Direction)
+			{
+				case ScrollDirection.Down:
+					if (scaleOnScroll)
+					{
+						Scale_X -= ScalingDelta;
+						Scale_Y -= ScalingDelta;
+					}
+					else
+						BaseLocation.Y += MovingDelta;
+					break;
+				case ScrollDirection.Up:
+					if (scaleOnScroll)
+					{
+						Scale_X += ScalingDelta;
+						Scale_Y += ScalingDelta;
+					}
+					else
+						BaseLocation.Y -= MovingDelta;
+					break;
+				case ScrollDirection.Left:
+					BaseLocation.X -= MovingDelta;
+					break;
+				case ScrollDirection.Right:
+					BaseLocation.X += MovingDelta;
+					break;
+			}
+
+			clearBackground = true;
+			QueueDraw();
+
+			base.OnMouseScrolled(args);
+		}
+
+		protected override void OnKeyPressed(KeyEventArgs args)
+		{
+			base.OnKeyPressed(args);
+
+			switch (args.Key)
+			{
+				case Key.ControlLeft:
+				case Key.ControlRight:
+					scaleOnScroll = true;
+					return;
+				case Key.Left:
+					BaseLocation.X -= MovingDelta;
+					break;
+				case Key.Right:
+					BaseLocation.X += MovingDelta;
+					break;
+				case Key.Up:
+					BaseLocation.Y += MovingDelta;
+					break;
+				case Key.Down:
+					BaseLocation.Y -= MovingDelta;
+					break;
+			}
+
+			clearBackground = true;
+			QueueDraw();
+		}
+
+		protected override void OnKeyReleased(KeyEventArgs args)
+		{
+			if (args.Key == Key.ControlLeft || args.Key == Key.ControlRight)
+				scaleOnScroll = false;
+			base.OnKeyReleased(args);
 		}
 		#endregion
 	}
