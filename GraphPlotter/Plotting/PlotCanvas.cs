@@ -19,14 +19,14 @@ namespace GraphPlotter.Plotting
 		public double Scale_X = 1;
 		public double Scale_Y = 1;
 
-		public static double DotsPerCentimeter = 96 / 2.54; // ISSUE: Assume 96 as actual (dots per inch) number - It's windows standard
+		public static double DotsPerCentimeter = 40; // ISSUE: Assume 96 as actual (dots per inch) number - It's windows standard
 
-		double DeltaX { get { return Scale_X * CalculationDensity * DotsPerCentimeter; } }
+		double DeltaX { get { return Scale_X * CalculationDensity / DotsPerCentimeter; } }
 		double YMultiplier { get { return Scale_Y * DotsPerCentimeter; } }
 
-		public int CalculationDensity = 1;
-		public double TickDensity_XAxis = 0.2;
-		public double TickDensity_YAxis = 0.2;
+		public int CalculationDensity = 4;
+		public double TickDensity_XAxis = 1;
+		public double TickDensity_YAxis = 1;
 
 		public Color axisColor = Colors.Black;
 		public Color gridColor = Colors.LightGray;
@@ -36,15 +36,22 @@ namespace GraphPlotter.Plotting
 
 		public PlotCanvas()
 		{
-			Graphs.Add(Function.Parse("cos(x)", "f"));
+			Graphs.Add(Function.Parse("-(x^^2)", "f"));
 			Graphs.Add(Function.Parse("sin(x)", "g"));
 
-			BaseLocation = new Point(0, 1);
+			BaseLocation = new Point(0,0);
 		}
 
 		#region Drawing
 		protected override void OnDraw(Context ctxt, Rectangle dirtyRect)
 		{
+			if (moving)
+			{
+				ctxt.SetColor(Colors.White);
+				ctxt.Rectangle(dirtyRect);
+				ctxt.Fill();
+				ctxt.Stroke();
+			}
 			ctxt.Save();
 			
 			DrawXAxis(ctxt, dirtyRect);
@@ -177,7 +184,49 @@ namespace GraphPlotter.Plotting
 		#endregion
 
 		#region Scaling
+		bool moving;
+		Point triggerPos;
 
+		protected override void OnButtonPressed(ButtonEventArgs args)
+		{
+			if (args.Button == PointerButton.Left)
+			{
+				if (!moving)
+					CalculationDensity *= 2;
+				moving = true;
+				triggerPos = new Point(args.X, args.Y);
+			}
+			base.OnButtonPressed(args);
+		}
+
+		protected override void OnButtonReleased(ButtonEventArgs args)
+		{
+			if (args.Button == PointerButton.Left)
+			{
+				if (moving)
+					CalculationDensity /= 2;
+				moving = false;
+			}
+
+			base.OnButtonReleased(args);
+		}
+
+		protected override void OnMouseMoved(MouseMovedEventArgs args)
+		{
+			base.OnMouseMoved(args);
+
+			if (moving)
+			{
+				var newX = BaseLocation.X + (triggerPos.X - args.X) / DotsPerCentimeter;
+				var newY = BaseLocation.Y + (args.Y - triggerPos.Y) / DotsPerCentimeter;
+				BaseLocation = new Point(newX, newY);
+				triggerPos = new Point(args.X, args.Y);
+
+				QueueDraw();
+			}
+
+			
+		}
 		#endregion
 	}
 }
