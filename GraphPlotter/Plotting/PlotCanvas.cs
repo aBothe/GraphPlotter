@@ -30,6 +30,8 @@ namespace GraphPlotter.Plotting
 		public double Scale_X;
 		public double Scale_Y;
 
+		const double Scale_Min = 0.4;
+
 		public double MovingDelta;
 		public double ScalingDelta;
 
@@ -52,13 +54,7 @@ namespace GraphPlotter.Plotting
 		#region Constructor/Init
 		public PlotCanvas()
 		{
-			var bk = Widget.GetWidgetBackend(this);
-			bk.EnableEvent(WidgetEvent.KeyPressed);
-			bk.EnableEvent(WidgetEvent.KeyReleased);
-
 			tickLabelFont = new TextLayout(this);
-
-			
 
 			LoadDefaultSettings();
 
@@ -67,6 +63,8 @@ namespace GraphPlotter.Plotting
 			g.Add(Function.Parse("(x^^3) - sin(x)", "g"));
 			//g.Add(Function.Parse("-sin(x)", "g"));
 			graphs = g.ToArray();
+
+			CanGetFocus = true;
 		}
 
 		void LoadDefaultSettings(bool redraw = false)
@@ -387,9 +385,14 @@ namespace GraphPlotter.Plotting
 					{
 						Scale_X -= ScalingDelta;
 						Scale_Y -= ScalingDelta;
+
+						if (Scale_X < Scale_Min)
+							Scale_X = Scale_Min;
+						if (Scale_Y < Scale_Min)
+							Scale_Y = Scale_Min;
 					}
 					else
-						BaseLocation.Y -= MovingDelta * Scale_Y;
+						BaseLocation.Y -= MovingDelta / Scale_Y;
 					break;
 				case ScrollDirection.Up:
 					if (scaleOnScroll)
@@ -398,13 +401,13 @@ namespace GraphPlotter.Plotting
 						Scale_Y += ScalingDelta;
 					}
 					else
-						BaseLocation.Y += MovingDelta * Scale_Y;
+						BaseLocation.Y += MovingDelta / Scale_Y;
 					break;
 				case ScrollDirection.Left:
-					BaseLocation.X -= MovingDelta * Scale_X;
+					BaseLocation.X -= MovingDelta / Scale_X;
 					break;
 				case ScrollDirection.Right:
-					BaseLocation.X += MovingDelta * Scale_X;
+					BaseLocation.X += MovingDelta / Scale_X;
 					break;
 			}
 
@@ -424,16 +427,16 @@ namespace GraphPlotter.Plotting
 					scaleOnScroll = true;
 					return;
 				case Key.Left:
-					BaseLocation.X -= MovingDelta * Scale_X;
+					BaseLocation.X -= MovingDelta / Scale_X;
 					break;
 				case Key.Right:
-					BaseLocation.X += MovingDelta * Scale_X;
+					BaseLocation.X += MovingDelta / Scale_X;
 					break;
 				case Key.Up:
-					BaseLocation.Y -= MovingDelta * Scale_Y;
+					BaseLocation.Y += MovingDelta / Scale_Y;
 					break;
 				case Key.Down:
-					BaseLocation.Y += MovingDelta * Scale_Y;
+					BaseLocation.Y -= MovingDelta / Scale_Y;
 					break;
 			}
 
@@ -445,6 +448,32 @@ namespace GraphPlotter.Plotting
 			if (args.Key == Key.ControlLeft || args.Key == Key.ControlRight)
 				scaleOnScroll = false;
 			base.OnKeyReleased(args);
+		}
+
+		protected override void OnGotFocus(EventArgs args)
+		{
+			base.OnGotFocus(args);
+		}
+
+		protected override void OnLostFocus(EventArgs args)
+		{
+			scaleOnScroll = false;
+			moving = false;
+			base.OnLostFocus(args);
+		}
+		#endregion
+
+		#region Function editing overlays
+		bool init = true;
+		protected override void OnBoundsChanged()
+		{
+			base.OnBoundsChanged();
+			if (init)
+			{
+				init = false;
+				CenterBaseLocation(true);
+			}
+			
 		}
 		#endregion
 	}

@@ -17,7 +17,7 @@ GraphPlotter
 - Funktionseingabe/Konstantenverwaltung ein/ausblendbar machen!
 
 - Funktions/Kontantenset in Datei speichern / auslesen
-- Als png exportieren
+# Als png exportieren
 
-
+- Fullscreen-Mode
 
