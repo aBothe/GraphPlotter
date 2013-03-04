@@ -50,6 +50,15 @@ namespace GraphPlotter
 			lowerRow.PackStart(settingsBox, BoxMode.FillAndExpand);
 
 			settingsBox.PackEnd(new Label("Boundaries"));
+
+			var exportButton = new Button("Export to png");
+			settingsBox.PackEnd(exportButton);
+			exportButton.Clicked += exportButton_Clicked;
+		}
+
+		void exportButton_Clicked(object sender, EventArgs e)
+		{
+			plot.RenderIntoPng("dump.png");
 		}
 		#endregion
 	}

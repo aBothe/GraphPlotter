@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using Xwt;
@@ -11,7 +12,16 @@ namespace GraphPlotter.Plotting
 	class PlotCanvas : Canvas
 	{
 		#region Properties
-		public readonly List<Function> Graphs = new List<Function>();
+		Function[] graphs;
+		Function[] Graphs
+		{
+			get { return graphs; }
+			set
+			{
+				graphs = value;
+				Redraw();
+			}
+		}
 
 		/// <summary>
 		/// The mathematical point to take for the upper left corner.
@@ -48,12 +58,15 @@ namespace GraphPlotter.Plotting
 
 			tickLabelFont = new TextLayout(this);
 
+			
+
 			LoadDefaultSettings();
 
-			Graphs.Add(Function.Parse("-(x^^2)+1", "f"));
-			Graphs.Add(Function.Parse("(x^^3) - sin(x)", "g"));
-			//Graphs.Add(Function.Parse("-sin(x)", "g"));
-
+			var g = new List<Function>();
+			g.Add(Function.Parse("-(x^^2)+1", "f"));
+			g.Add(Function.Parse("(x^^3) - sin(x)", "g"));
+			//g.Add(Function.Parse("-sin(x)", "g"));
+			graphs = g.ToArray();
 			
 		}
 
@@ -88,6 +101,32 @@ namespace GraphPlotter.Plotting
 		{
 			clearBackground = true;
 			QueueDraw();
+		}
+
+		public Image DrawToBitmap(bool fillBackground = false, int width = -1, int height = -1)
+		{
+			using (var imgBuilder = new Xwt.Drawing.ImageBuilder(
+				Math.Max(width, (int)Size.Width),
+				Math.Max(height, (int)Size.Height),
+				ImageFormat.ARGB32))
+			{
+				clearBackground = fillBackground;
+				// Backup, set and reset calculation density to 1 to achieve maximum render performance
+				var density_Backup = CalculationDensity;
+				CalculationDensity = 1;
+
+				OnDraw(imgBuilder.Context, Bounds);
+
+				CalculationDensity = density_Backup;
+
+				return imgBuilder.ToImage();
+			}
+		}
+
+		public void RenderIntoPng(string targetFile)
+		{
+			using (var img = DrawToBitmap())
+				img.Save(targetFile, ImageFileType.Png);			
 		}
 
 		protected override void OnDraw(Context ctxt, Rectangle dirtyRect)
@@ -234,6 +273,9 @@ namespace GraphPlotter.Plotting
 
 		void DrawGraphs(Context ctxt, Rectangle dirtyRect)
 		{
+			if (graphs == null || graphs.Length == 0)
+				return;
+
 			var x_max = GetMaximalX(dirtyRect.Width);
 			var x_delta = DeltaX;
 
@@ -242,7 +284,7 @@ namespace GraphPlotter.Plotting
 			var y_min = GetMinimalY(dirtyRect.Height);
 			var y_max = GetMaximalY();
 
-			foreach (var f in Graphs)
+			foreach (var f in graphs)
 			{
 				y = 0d;
 				var x = GetMinimalX();
