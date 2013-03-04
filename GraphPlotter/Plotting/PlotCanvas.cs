@@ -61,16 +61,16 @@ namespace GraphPlotter.Plotting
 		{
 			BaseLocation = new Point(0, 0);
 
-			Scale_X = 1;
-			Scale_Y = 1;
+			Scale_X = 4;
+			Scale_Y = 4;
 
 			MovingDelta = 1;
 			ScalingDelta = 0.1;
 
-			CalculationDensity = 4;
+			CalculationDensity = 2;
 
-			TickDensity_XAxis = 1;
-			TickDensity_YAxis = 1;
+			TickDensity_XAxis = 0.2;
+			TickDensity_YAxis = 0.2;
 
 			axisColor = Colors.Black;
 			axisThickness = 1;
@@ -167,9 +167,9 @@ namespace GraphPlotter.Plotting
 						visualPosition < dirtyRect.Height;
 						visualPosition += tickDens_Y)
 				{
-					if (y != 0)
+					if (y < -0.01 || y > 0.01)
 					{
-						tickLabelFont.Text = y.ToString();
+						tickLabelFont.Text = Math.Round(y, 1).ToString();
 						ctxt.DrawTextLayout(tickLabelFont, 2, visualPosition);
 					}
 					y -= TickDensity_YAxis;
@@ -197,9 +197,9 @@ namespace GraphPlotter.Plotting
 						visualPosition < dirtyRect.Width;
 						visualPosition += tickDens_X)
 				{
-					if (x != 0)
+					if (x < -0.01 || x > 0.01)
 					{
-						tickLabelFont.Text = x.ToString();
+						tickLabelFont.Text = Math.Round(x,1).ToString();
 						ctxt.DrawTextLayout(tickLabelFont, visualPosition, labelYOffset);
 					}
 					x += TickDensity_XAxis;
