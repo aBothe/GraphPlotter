@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GraphPlotter.Plotting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace GraphPlotter
 	class MainForm : Window
 	{
 		#region Properties
-		Plotting.PlotCanvas plot;
+		PlotCanvas plot { get { return Content as PlotCanvas; } }
 
 		#endregion
 
@@ -24,10 +25,42 @@ namespace GraphPlotter
 		void BuildMenu()
 		{
 			var m = new Menu();
-
-
-
 			MainMenu = m;
+
+			var s = new MenuItem("Program");
+			m.Items.Add(s);
+
+			var ss = new Menu();
+			s.SubMenu = ss;
+
+			var b = new MenuItem("Export as png");
+			b.Clicked += (sender, ea) => 
+				plot.RenderIntoPng("dump.png"); //TODO
+			ss.Items.Add(b);
+
+			ss.Items.Add(new SeparatorMenuItem());
+
+			b = new MenuItem("Exit");
+			b.Clicked += (sender, ea) => Application.Exit();
+			ss.Items.Add(b);
+
+
+
+			s = new MenuItem("Tools");
+			m.Items.Add(s);
+
+			ss = new Menu();
+			s.SubMenu = ss;
+
+			b = new MenuItem("Clear functions");
+			b.Clicked += (sender, ea) => 
+				plot.Graphs = null;
+			ss.Items.Add(b);
+
+			b = new MenuItem("Center origin");
+			b.Clicked += (sender, ea) => 
+				plot.CenterBaseLocation();
+			ss.Items.Add(b);
 		}
 
 		void BuildGui()
@@ -35,30 +68,7 @@ namespace GraphPlotter
 			Height = 600;
 			Width = 900;
 
-			var vb = new VBox();
-			this.Content = vb;
-
-			plot = new Plotting.PlotCanvas();
-			vb.PackStart(plot, BoxMode.FillAndExpand);
-
-
-			var lowerRow = new HBox();
-			vb.PackEnd(lowerRow, BoxMode.FillAndExpand, 2);
-
-
-			var settingsBox = new VBox();
-			lowerRow.PackStart(settingsBox, BoxMode.FillAndExpand);
-
-			settingsBox.PackEnd(new Label("Boundaries"));
-
-			var exportButton = new Button("Export to png");
-			settingsBox.PackEnd(exportButton);
-			exportButton.Clicked += exportButton_Clicked;
-		}
-
-		void exportButton_Clicked(object sender, EventArgs e)
-		{
-			plot.RenderIntoPng("dump.png");
+			this.Content = new Plotting.PlotCanvas();
 		}
 		#endregion
 	}

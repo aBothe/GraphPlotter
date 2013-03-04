@@ -13,7 +13,7 @@ namespace GraphPlotter.Plotting
 	{
 		#region Properties
 		Function[] graphs;
-		Function[] Graphs
+		public Function[] Graphs
 		{
 			get { return graphs; }
 			set
@@ -67,7 +67,6 @@ namespace GraphPlotter.Plotting
 			g.Add(Function.Parse("(x^^3) - sin(x)", "g"));
 			//g.Add(Function.Parse("-sin(x)", "g"));
 			graphs = g.ToArray();
-			
 		}
 
 		void LoadDefaultSettings(bool redraw = false)
@@ -95,8 +94,7 @@ namespace GraphPlotter.Plotting
 		}
 		#endregion
 
-		#region Drawing
-
+		#region Drawing (Highlevel)
 		public void Redraw()
 		{
 			clearBackground = true;
@@ -126,9 +124,11 @@ namespace GraphPlotter.Plotting
 		public void RenderIntoPng(string targetFile)
 		{
 			using (var img = DrawToBitmap())
-				img.Save(targetFile, ImageFileType.Png);			
+				img.Save(targetFile, ImageFileType.Png);
 		}
+		#endregion
 
+		#region Drawing
 		protected override void OnDraw(Context ctxt, Rectangle dirtyRect)
 		{
 			if (clearBackground)
@@ -327,6 +327,17 @@ namespace GraphPlotter.Plotting
 		bool clearBackground = false;
 		bool moving;
 		Point triggerPos;
+
+		public void CenterBaseLocation(bool redraw = true)
+		{
+			var sz = Size;
+			var newX = -(sz.Width / (2 * DotsPerCentimeter * Scale_X));
+			var newY = sz.Height / (2 * DotsPerCentimeter * Scale_Y);
+			BaseLocation = new Point(newX, newY);
+
+			if (redraw)
+				Redraw();
+		}
 
 		protected override void OnButtonPressed(ButtonEventArgs args)
 		{
