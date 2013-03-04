@@ -31,7 +31,7 @@ namespace GraphPlotter.Plotting
 
 		public int CalculationDensity = 4;
 		public double TickDensity_XAxis = 1;
-		public double TickDensity_YAxis = Math.PI;
+		public double TickDensity_YAxis = 1;
 
 		public Color axisColor = Colors.Black;
 		public Color gridColor = Colors.LightGray;
@@ -53,6 +53,13 @@ namespace GraphPlotter.Plotting
 		}
 
 		#region Drawing
+
+		public void Redraw()
+		{
+			clearBackground = true;
+			QueueDraw();
+		}
+
 		protected override void OnDraw(Context ctxt, Rectangle dirtyRect)
 		{
 			if (clearBackground)
@@ -87,20 +94,20 @@ namespace GraphPlotter.Plotting
 
 			// Draw vertical grid
 			var tickDens = Scale_X * DotsPerCentimeter * TickDensity_YAxis;
-			var x_vis = -(BaseLocation.X % TickDensity_YAxis) * Scale_X * DotsPerCentimeter;
-			for (; x_vis < dirtyRect.Width; x_vis += tickDens)
+			var visualPosition = -(BaseLocation.X % TickDensity_YAxis) * Scale_X * DotsPerCentimeter;
+			for (; visualPosition < dirtyRect.Width; visualPosition += tickDens)
 			{
-				ctxt.MoveTo(x_vis, 0);
-				ctxt.LineTo(x_vis, dirtyRect.Height);
+				ctxt.MoveTo(visualPosition, 0);
+				ctxt.LineTo(visualPosition, dirtyRect.Height);
 			}
 
 			// Draw horizontal grid
 			tickDens = Scale_Y * DotsPerCentimeter * TickDensity_XAxis;
-			var y_vis = (BaseLocation.Y % TickDensity_XAxis) * Scale_Y * DotsPerCentimeter;
-			for (; y_vis < dirtyRect.Height; y_vis += tickDens)
+			visualPosition = (BaseLocation.Y % TickDensity_XAxis) * Scale_Y * DotsPerCentimeter;
+			for (; visualPosition < dirtyRect.Height; visualPosition += tickDens)
 			{
-				ctxt.MoveTo(0,y_vis);
-				ctxt.LineTo(dirtyRect.Width, y_vis);
+				ctxt.MoveTo(0,visualPosition);
+				ctxt.LineTo(dirtyRect.Width, visualPosition);
 			}
 
 			ctxt.Stroke();
@@ -266,11 +273,8 @@ namespace GraphPlotter.Plotting
 				BaseLocation = new Point(newX, newY);
 				triggerPos = new Point(args.X, args.Y);
 
-				clearBackground = true;
-				QueueDraw();
+				Redraw();
 			}
-
-			
 		}
 
 		protected override void OnMouseScrolled(MouseScrolledEventArgs args)
@@ -303,8 +307,7 @@ namespace GraphPlotter.Plotting
 					break;
 			}
 
-			clearBackground = true;
-			QueueDraw();
+			Redraw();
 
 			base.OnMouseScrolled(args);
 		}
@@ -333,8 +336,7 @@ namespace GraphPlotter.Plotting
 					break;
 			}
 
-			clearBackground = true;
-			QueueDraw();
+			Redraw();
 		}
 
 		protected override void OnKeyReleased(KeyEventArgs args)
