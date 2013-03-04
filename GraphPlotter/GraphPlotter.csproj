@@ -46,8 +46,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ext\Xwt.dll</HintPath>
     </Reference>
-    <Reference Include="Xwt.WPF, Version=0.2.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Xwt.WPF">
       <HintPath>..\ext\Xwt.WPF.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -57,6 +56,9 @@
     </Compile>
     <Compile Include="Plotting\ExpressionCompiler.cs" />
     <Compile Include="Plotting\Function.cs" />
+    <Compile Include="Plotting\FunctionEditingOverlay.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Plotting\PlotCanvas.cs">
       <SubType>Component</SubType>
     </Compile>

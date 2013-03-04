@@ -22,6 +22,7 @@ namespace GraphPlotter
 			BuildGui();
 
 			Show();
+			plot.SetFocus();
 		}
 
 		void BuildMenu()

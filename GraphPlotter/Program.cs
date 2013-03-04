@@ -10,7 +10,6 @@ namespace GraphPlotter
 		{
 			Application.Initialize();
 			var main = new MainForm();
-			main.Show();
 			Application.Run();
 			main.Dispose();
 		}
