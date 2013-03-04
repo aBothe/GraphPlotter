@@ -74,9 +74,6 @@ namespace GraphPlotter.Plotting
 
 			DrawGrid(ctxt, dirtyRect);
 			
-			DrawXAxis(ctxt, dirtyRect);
-			DrawYAxis(ctxt, dirtyRect);
-
 			DrawGraphs(ctxt, dirtyRect);
 			
 			ctxt.Restore();
@@ -86,82 +83,58 @@ namespace GraphPlotter.Plotting
 
 		void DrawGrid(Context ctxt, Rectangle dirtyRect)
 		{
-			if (gridThickness <= 0)
-				return;
-
 			ctxt.SetColor(gridColor);
-			ctxt.SetLineWidth(gridThickness);
+			if(gridThickness > 0)
+				ctxt.SetLineWidth(gridThickness);
 
 			// Draw vertical grid
 			var tickDens = Scale_X * DotsPerCentimeter * TickDensity_YAxis;
 			var visualPosition = -(BaseLocation.X % TickDensity_YAxis) * Scale_X * DotsPerCentimeter;
-			for (; visualPosition < dirtyRect.Width; visualPosition += tickDens)
-			{
-				ctxt.MoveTo(visualPosition, 0);
-				ctxt.LineTo(visualPosition, dirtyRect.Height);
-			}
+			
+			if (gridThickness > 0)
+				for (; visualPosition < dirtyRect.Width; visualPosition += tickDens)
+				{
+					ctxt.MoveTo(visualPosition, 0);
+					ctxt.LineTo(visualPosition, dirtyRect.Height);
+				}
 
 			// Draw horizontal grid
 			tickDens = Scale_Y * DotsPerCentimeter * TickDensity_XAxis;
 			visualPosition = (BaseLocation.Y % TickDensity_XAxis) * Scale_Y * DotsPerCentimeter;
-			for (; visualPosition < dirtyRect.Height; visualPosition += tickDens)
-			{
-				ctxt.MoveTo(0,visualPosition);
-				ctxt.LineTo(dirtyRect.Width, visualPosition);
-			}
+			if (gridThickness > 0)
+				for (; visualPosition < dirtyRect.Height; visualPosition += tickDens)
+				{
+					ctxt.MoveTo(0,visualPosition);
+					ctxt.LineTo(dirtyRect.Width, visualPosition);
+				}
 
 			ctxt.Stroke();
-		}
 
-		void DrawXAxis(Context ctxt, Rectangle dirtyRect)
-		{
-			/*var y_multiplier = dirtyRect.Height / AxisBoundaries.Height;
-			var y_max = AxisBoundaries.Y + AxisBoundaries.Height;
-			var axis_y = -AxisBoundaries.Y * y_multiplier;
-			ctxt.Translate(0, axis_y + (axis_y % TickDensity_XAxis));
-
-			ctxt.SetColor(gridColor);
-			ctxt.SetLineWidth(gridThickness);
-
-			for (var y = AxisBoundaries.Y; y <= y_max; y += TickDensity_XAxis)
-			{
-				// We've reached the 0 axis
-				if (y >= 0 && y< TickDensity_XAxis)
-				{
-					ctxt.SetColor(axisColor);
-					ctxt.SetLineWidth(axisThickness);
-
-					ctxt.MoveTo(0, 0);
-					ctxt.LineTo(dirtyRect.Width, 0);
-					ctxt.Stroke();
-
-					ctxt.SetColor(gridColor);
-					ctxt.SetLineWidth(gridThickness);
-				}
-				else
-				{
-					ctxt.MoveTo(0, y * y_multiplier);
-					ctxt.LineTo(dirtyRect.Width, y * y_multiplier);
-					ctxt.Stroke();
-				}
-			}
-
-			ctxt.Translate(0, -axis_y - (axis_y % TickDensity_XAxis));*/
-		}
-
-		void DrawYAxis(Context ctxt, Rectangle dirtyRect)
-		{
-			/*var axis_x = (-AxisBoundaries.X * dirtyRect.Width) / AxisBoundaries.Width;
-
-			if (axis_x < 0 || axis_x > dirtyRect.Width)
+			if (axisThickness < 0)
 				return;
 
-			ctxt.SetColor(Colors.Black);
-			ctxt.SetLineWidth(0.5);
+			ctxt.SetColor(axisColor);
+			ctxt.SetLineWidth(axisThickness);
 
-			ctxt.MoveTo(axis_x, 0);
-			ctxt.LineTo(axis_x, dirtyRect.Height);
-			ctxt.Stroke();*/
+			var axisPosition_y = -(BaseLocation.X * tickDens);
+			if (axisPosition_y >= 0)
+			{
+				ctxt.MoveTo(axisPosition_y, 0);
+				ctxt.LineTo(axisPosition_y, dirtyRect.Height);
+
+				ctxt.Stroke();
+			}
+
+			var axisPosition_x = BaseLocation.Y * tickDens;
+			if (axisPosition_x >= 0)
+			{
+				ctxt.MoveTo(0, axisPosition_x);
+				ctxt.LineTo(dirtyRect.Width, axisPosition_x);
+
+				ctxt.Stroke();
+			}
+
+			ctxt.SetLineWidth(1);
 		}
 
 		double GetMinimalX()
