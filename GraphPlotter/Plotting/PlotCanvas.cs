@@ -162,8 +162,8 @@ namespace GraphPlotter.Plotting
 
 				// Draw Y-Labels
 				ctxt.MoveTo(0, 0);
-				var y = Math.Round(BaseLocation.Y - (BaseLocation.Y % TickDensity_YAxis),1);
-				for (var visualPosition = initialVisPosition_Y;
+				var y = Math.Round(BaseLocation.Y - (BaseLocation.Y % TickDensity_YAxis) - TickDensity_YAxis,1);
+				for (var visualPosition = initialVisPosition_Y - tickDens_Y;
 						visualPosition < dirtyRect.Height;
 						visualPosition += tickDens_Y)
 				{
@@ -192,8 +192,8 @@ namespace GraphPlotter.Plotting
 				// Draw X-Labels
 				var labelYOffset = -tickLabelFont.Height - 2;
 				ctxt.MoveTo(0, 0);
-				var x = Math.Round(BaseLocation.X - (BaseLocation.X % TickDensity_XAxis), 1);
-				for (var visualPosition = initialVisPosition_X;
+				var x = Math.Round(BaseLocation.X - (BaseLocation.X % TickDensity_XAxis) - TickDensity_XAxis, 1);
+				for (var visualPosition = initialVisPosition_X - tickDens_X;
 						visualPosition < dirtyRect.Width;
 						visualPosition += tickDens_X)
 				{
