@@ -10,7 +10,7 @@ namespace GraphPlotter
 	class MainForm : Window
 	{
 		#region Properties
-		PlotCanvas plot { get { return Content as PlotCanvas; } }
+		readonly PlotCanvas plot = new PlotCanvas();
 
 		#endregion
 
@@ -20,6 +20,8 @@ namespace GraphPlotter
 		{
 			BuildMenu();
 			BuildGui();
+
+			Show();
 		}
 
 		void BuildMenu()
@@ -67,9 +69,9 @@ namespace GraphPlotter
 		{
 			Height = 600;
 			Width = 900;
-
-			this.Content = new Plotting.PlotCanvas();
+			Content = plot;
 		}
+
 		#endregion
 	}
 }
