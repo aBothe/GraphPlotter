@@ -31,7 +31,7 @@ namespace GraphPlotter.Plotting
 
 		public int CalculationDensity = 4;
 		public double TickDensity_XAxis = 1;
-		public double TickDensity_YAxis = 1;
+		public double TickDensity_YAxis = Math.PI;
 
 		public Color axisColor = Colors.Black;
 		public Color gridColor = Colors.LightGray;
@@ -45,8 +45,9 @@ namespace GraphPlotter.Plotting
 			bk.EnableEvent(WidgetEvent.KeyPressed);
 			bk.EnableEvent(WidgetEvent.KeyReleased);
 			
-			Graphs.Add(Function.Parse("-(x^^2)", "f"));
-			Graphs.Add(Function.Parse("abs(sin(x))", "g"));
+			Graphs.Add(Function.Parse("-(x^^2)+1", "f"));
+			Graphs.Add(Function.Parse("sin(x)", "g"));
+			Graphs.Add(Function.Parse("-sin(x)", "g"));
 
 			BaseLocation = new Point(0,0);
 		}
@@ -63,6 +64,8 @@ namespace GraphPlotter.Plotting
 				ctxt.Stroke();
 			}
 			ctxt.Save();
+
+			DrawGrid(ctxt, dirtyRect);
 			
 			DrawXAxis(ctxt, dirtyRect);
 			DrawYAxis(ctxt, dirtyRect);
@@ -72,6 +75,35 @@ namespace GraphPlotter.Plotting
 			ctxt.Restore();
 			
 			base.OnDraw(ctxt, dirtyRect);
+		}
+
+		void DrawGrid(Context ctxt, Rectangle dirtyRect)
+		{
+			if (gridThickness <= 0)
+				return;
+
+			ctxt.SetColor(gridColor);
+			ctxt.SetLineWidth(gridThickness);
+
+			// Draw vertical grid
+			var tickDens = Scale_X * DotsPerCentimeter * TickDensity_YAxis;
+			var x_vis = -(BaseLocation.X % TickDensity_YAxis) * Scale_X * DotsPerCentimeter;
+			for (; x_vis < dirtyRect.Width; x_vis += tickDens)
+			{
+				ctxt.MoveTo(x_vis, 0);
+				ctxt.LineTo(x_vis, dirtyRect.Height);
+			}
+
+			// Draw horizontal grid
+			tickDens = Scale_Y * DotsPerCentimeter * TickDensity_XAxis;
+			var y_vis = (BaseLocation.Y % TickDensity_XAxis) * Scale_Y * DotsPerCentimeter;
+			for (; y_vis < dirtyRect.Height; y_vis += tickDens)
+			{
+				ctxt.MoveTo(0,y_vis);
+				ctxt.LineTo(dirtyRect.Width, y_vis);
+			}
+
+			ctxt.Stroke();
 		}
 
 		void DrawXAxis(Context ctxt, Rectangle dirtyRect)
