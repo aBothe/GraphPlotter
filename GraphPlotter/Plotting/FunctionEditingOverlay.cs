@@ -32,6 +32,11 @@ namespace GraphPlotter.Plotting
 			mainVBox.PackStart(footerHBox, BoxMode.Fill);
 
 			addFuncButton = new Button(StockIcons.Add.WithSize(16)) { TooltipText = "Add new function" };
+			addFuncButton.Clicked += (s, e) => { 
+				var fid = new FunctionInputDialog();
+				if (fid.Run(ParentWindow) == Command.Ok)
+					plot.Functions.Add(fid.Function);
+			};
 			footerHBox.PackEnd(addFuncButton, BoxMode.None);
 		}
 
@@ -104,16 +109,11 @@ namespace GraphPlotter.Plotting
 
 				var mb = new MenuItem("Edit");
 				m.Items.Add(mb);
-				mb.Clicked += editFunctionHandler;
+				mb.Clicked += (s, e) => new FunctionInputDialog(Function).Run(ParentWindow);
 
 				mb = new MenuItem("Remove");
 				m.Items.Add(mb);
 				mb.Clicked += (s, e) => plot.Functions.Remove(Function);
-			}
-
-			void editFunctionHandler(object sender, EventArgs e)
-			{
-				
 			}
 
 			void f_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

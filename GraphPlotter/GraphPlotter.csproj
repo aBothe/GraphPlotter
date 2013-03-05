@@ -62,6 +62,9 @@
     <Compile Include="Plotting\FunctionEditingOverlay.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Plotting\FunctionInputDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Plotting\PlotCanvas.cs">
       <SubType>Component</SubType>
     </Compile>
