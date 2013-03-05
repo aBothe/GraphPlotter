@@ -57,12 +57,16 @@ namespace GraphPlotter
 
 			b = new MenuItem("Clear functions");
 			b.Clicked += (sender, ea) => 
-				plot.Graphs = null;
+				plot.Functions.Clear();
 			ss.Items.Add(b);
 
 			b = new MenuItem("Center origin");
 			b.Clicked += (sender, ea) => 
 				plot.CenterBaseLocation();
+			ss.Items.Add(b);
+
+			b = new MenuItem("Reset scaling");
+			b.Clicked += (sender, ea) => plot.RestoreDefaultScaling();
 			ss.Items.Add(b);
 		}
 

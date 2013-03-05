@@ -12,16 +12,10 @@ namespace GraphPlotter.Plotting
 	class PlotCanvas : Canvas
 	{
 		#region Properties
-		Function[] graphs;
-		public Function[] Graphs
-		{
-			get { return graphs; }
-			set
-			{
-				graphs = value;
-				Redraw();
-			}
-		}
+		public const int MaximumFunctionCount = 5;
+		HBox funcOverlayBox;
+		public readonly ObservableCollection<Function> Functions = new ObservableCollection<Function>();
+		bool updatingGraphEntries;
 
 		/// <summary>
 		/// The mathematical point to take for the upper left corner.
@@ -54,25 +48,38 @@ namespace GraphPlotter.Plotting
 		#region Constructor/Init
 		public PlotCanvas()
 		{
+			CanGetFocus = true;
+
+			funcOverlayBox = new HBox();
+			AddChild(funcOverlayBox);
+
+			funcOverlayBox.PackEnd(new FunctionEditingOverlay(this), BoxMode.Fill);
+			
+			Functions.CollectionChanged += Graphs_CollectionChanged;
 			tickLabelFont = new TextLayout(this);
 
 			LoadDefaultSettings();
 
-			var g = new List<Function>();
-			g.Add(Function.Parse("-(x^^2)+1", "f"));
-			g.Add(Function.Parse("(x^^3) - sin(x)", "g"));
-			//g.Add(Function.Parse("-sin(x)", "g"));
-			graphs = g.ToArray();
 
-			CanGetFocus = true;
+
+			BeginUpdateGraphs();
+			Functions.Add(Function.Parse("-(x^^2)+1", "f"));
+			Functions.Add(Function.Parse("(x^^3) - sin(x)", "g"));
+			//g.Add(Function.Parse("-sin(x)", "g"));
+			FinishUpdateGraphs();
 		}
 
-		void LoadDefaultSettings(bool redraw = false)
+		void Graphs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			if (!updatingGraphEntries)
+				Redraw();
+		}
+
+		public void LoadDefaultSettings(bool redraw = false)
 		{
 			BaseLocation = new Point(0, 0);
 
-			Scale_X = 4;
-			Scale_Y = 4;
+			RestoreDefaultScaling(false);
 
 			MovingDelta = 1;
 			ScalingDelta = 0.1;
@@ -90,6 +97,17 @@ namespace GraphPlotter.Plotting
 
 			tickLabelFont.Font = tickLabelFont.Font.WithPointSize(7);
 		}
+
+		public void RestoreDefaultScaling(bool redraw = true)
+		{
+			Scale_X = 4;
+			Scale_Y = 4;
+			if (redraw)
+				Redraw();
+		}
+
+		void BeginUpdateGraphs() { updatingGraphEntries = true; }
+		void FinishUpdateGraphs() { updatingGraphEntries = false; Redraw(); }
 		#endregion
 
 		#region Drawing (Highlevel)
@@ -271,7 +289,7 @@ namespace GraphPlotter.Plotting
 
 		void DrawGraphs(Context ctxt, Rectangle dirtyRect)
 		{
-			if (graphs == null || graphs.Length == 0)
+			if (Functions.Count == 0)
 				return;
 
 			var x_max = GetMaximalX(dirtyRect.Width);
@@ -282,7 +300,7 @@ namespace GraphPlotter.Plotting
 			var y_min = GetMinimalY(dirtyRect.Height);
 			var y_max = GetMaximalY();
 
-			foreach (var f in graphs)
+			foreach (var f in Functions)
 			{
 				y = 0d;
 				var x = GetMinimalX();
@@ -473,7 +491,9 @@ namespace GraphPlotter.Plotting
 				init = false;
 				CenterBaseLocation(true);
 			}
-			
+
+			var w = Size;
+			SetChildBounds(funcOverlayBox,new Rectangle(0,0,w.Width, funcOverlayBox.Size.Height));
 		}
 		#endregion
 	}
