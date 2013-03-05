@@ -217,7 +217,7 @@ namespace GraphPlotter.Plotting
 
 				// Draw Y-Labels
 				ctxt.MoveTo(0, 0);
-				var y = Math.Round(BaseLocation.Y - (BaseLocation.Y % TickDensity_YAxis) - TickDensity_YAxis,1);
+				var y = Math.Round(BaseLocation.Y - (BaseLocation.Y % TickDensity_YAxis) + TickDensity_YAxis,1);
 				for (var visualPosition = initialVisPosition_Y - tickDens_Y;
 						visualPosition < dirtyRect.Height;
 						visualPosition += tickDens_Y)
