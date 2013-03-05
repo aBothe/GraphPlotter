@@ -12,11 +12,13 @@ namespace GraphPlotter.Plotting
 	public class ExpressionCompiler : D_Parser.Dom.ExpressionVisitor
 	{
 		ILGenerator ilGen;
-		MethodInfo MathPow;
-		Dictionary<string, MethodInfo> SingleArgMathFunctions = new Dictionary<string, MethodInfo>();
+		static MethodInfo MathPow;
+		static Dictionary<string, MethodInfo> SingleArgMathFunctions = new Dictionary<string, MethodInfo>();
 		Dictionary<string, double> Constants = new Dictionary<string, double>();
 
-		ExpressionCompiler()
+		static Dictionary<ulong, DynamicMethod> CachedMethods = new Dictionary<ulong, DynamicMethod>();
+
+		static ExpressionCompiler()
 		{
 			var math = typeof(Math);
 			var dbl = typeof(double);
@@ -30,9 +32,17 @@ namespace GraphPlotter.Plotting
 			SingleArgMathFunctions["log"] = math.GetMethod("Log10", new[] { dbl });
 		}
 
-		public static DynamicMethod Compile(string name,IExpression x)
+		static int methodNum = 1;
+		public static DynamicMethod Compile(IExpression x)
 		{
-			var dm = new DynamicMethod(name, typeof(double), new[] { typeof(double) });
+			if (x == null)
+				throw new ArgumentNullException("Expression must not be empty!");
+
+			DynamicMethod dm;
+			if (CachedMethods.TryGetValue(x.GetHash(), out dm))
+				return dm;
+
+			dm = new DynamicMethod("_dynamicMethod"+(methodNum++), typeof(double), new[] { typeof(double) });
 
 			Generate(x, dm.GetILGenerator());
 

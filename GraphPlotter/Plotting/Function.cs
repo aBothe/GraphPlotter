@@ -1,4 +1,5 @@
 ﻿using D_Parser.Dom.Expressions;
+using D_Parser.Parser;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,6 +24,7 @@ namespace GraphPlotter.Plotting
 
 		#region Properties
 		IExpression expression;
+		bool visible = true;
 		string name;
 		Color graphColor;
 		System.Reflection.Emit.DynamicMethod calcMethod;
@@ -30,12 +32,6 @@ namespace GraphPlotter.Plotting
 		public IExpression Expression
 		{
 			get { return expression; }
-			private set
-			{
-				expression = value;
-				if (PropertyChanged != null)
-					PropertyChanged(this, new PropertyChangedEventArgs("Expression"));
-			}
 		}
 		public string Name {
 			get { return name; }
@@ -55,43 +51,73 @@ namespace GraphPlotter.Plotting
 					PropertyChanged(this, new PropertyChangedEventArgs("GraphColor"));
 			}
 		}
+		public bool Visible
+		{
+			get { return visible; }
+			set
+			{
+				visible = value;
+				if (PropertyChanged != null)
+					PropertyChanged(this, new PropertyChangedEventArgs("Visible"));
+			}
+		}
 		public System.Reflection.Emit.DynamicMethod CompiledExpression
 		{
 			get { return calcMethod; }
-			set
-			{
-				calcMethod = value;
-				if (PropertyChanged != null)
-					PropertyChanged(this, new PropertyChangedEventArgs("CompiledExpression"));
-			}
 		}
 		#endregion
 
 		#region Init
-		public static Function Parse(string expression, string name)
+		public Function()
 		{
-			var x = D_Parser.Parser.DParser.ParseExpression(expression);
-
-			if (x == null)
-				throw new InvalidExpressionException(expression);
-
-			var dm = ExpressionCompiler.Compile(name, x);
-
 			if (colorCounter >= DefaultColors.Count)
 				colorCounter = 0;
 			if (DefaultColors.Count == 0)
 				DefaultColors.Add(Colors.Black);
-
-			return new Function(x, name) { GraphColor = DefaultColors[colorCounter++], CompiledExpression = dm };
+			GraphColor = DefaultColors[colorCounter++];
 		}
 
-		protected Function(IExpression x, string name)
+		public static Function Parse(string name, string expression)
 		{
-			Name = name;
-			Expression = x;
+			var f = new Function();
+			f.Name = name;
+			f.UpdateExpression(expression);
+			return f;
+		}
+		#endregion
+
+		/// <summary>
+		/// May throws an exception when compilation errors occur.
+		/// </summary>
+		public void UpdateExpression(string expressionString)
+		{
+			if (string.IsNullOrWhiteSpace(expressionString))
+				throw new ArgumentNullException("Given expression must not be empty!");
+
+			var p = DParser.Create(new System.IO.StringReader(expressionString));
+			p.Step();
+			var x = p.Expression();
+
+			if (p.ParseErrors.Count > 0)
+				throw new ArgumentException("Column "+p.ParseErrors[0].Location.Column+ ": "+p.ParseErrors[0].Message);
+
+			UpdateExpression(x);
 		}
 
-		#endregion
+		/// <summary>
+		/// May throws an exception when compilation errors occur.
+		/// </summary>
+		public void UpdateExpression(IExpression x, System.Reflection.Emit.DynamicMethod compilate = null)
+		{
+			expression = x;
+			if (PropertyChanged != null)
+				PropertyChanged(this, new PropertyChangedEventArgs("Expression"));
+
+			calcMethod = compilate ?? ExpressionCompiler.Compile(x);
+
+			if (PropertyChanged != null)
+				PropertyChanged(this, new PropertyChangedEventArgs("CompiledExpression"));
+		}
 
 		public double Calculate(double x)
 		{

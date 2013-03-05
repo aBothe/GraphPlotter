@@ -63,15 +63,24 @@ namespace GraphPlotter.Plotting
 
 
 			BeginUpdateGraphs();
-			Functions.Add(Function.Parse("-(x^^2)+1", "f"));
-			Functions.Add(Function.Parse("(x^^3) - sin(x)", "g"));
-			//g.Add(Function.Parse("-sin(x)", "g"));
+			Functions.Add(Function.Parse("f", "-(x^^2)+1"));
+			Functions.Add(Function.Parse("g",  "(x^^3) - sin(x)"));
 			FinishUpdateGraphs();
 		}
 
 		void Graphs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
+			if(e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+				foreach(Function f in e.NewItems)
+					f.PropertyChanged += f_PropertyChanged;
+
 			if (!updatingGraphEntries)
+				Redraw();
+		}
+
+		void f_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if (!updatingGraphEntries && (e.PropertyName == "Visible" || e.PropertyName == "CompiledExpression"))
 				Redraw();
 		}
 
@@ -302,6 +311,9 @@ namespace GraphPlotter.Plotting
 
 			foreach (var f in Functions)
 			{
+				if (!f.Visible)
+					continue;
+
 				y = 0d;
 				var x = GetMinimalX();
 				ctxt.SetColor(f.GraphColor);
