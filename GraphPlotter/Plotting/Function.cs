@@ -72,6 +72,7 @@ namespace GraphPlotter.Plotting
 		{
 			if (colorCounter >= DefaultColors.Count)
 				colorCounter = 0;
+			
 			if (DefaultColors.Count == 0)
 				DefaultColors.Add(Colors.Black);
 			GraphColor = DefaultColors[colorCounter++];
@@ -81,27 +82,36 @@ namespace GraphPlotter.Plotting
 		{
 			var f = new Function();
 			f.Name = name;
-			f.UpdateExpression(expression);
+			string errText;
+			var x = ParseExpressionString(expression, out errText);
+			if (errText != null)
+				throw new Exception(errText);
+			f.UpdateExpression(x);
 			return f;
 		}
 		#endregion
 
-		/// <summary>
-		/// May throws an exception when compilation errors occur.
-		/// </summary>
-		public void UpdateExpression(string expressionString)
+		public static IExpression ParseExpressionString(string expressionString, out string errText)
 		{
+			errText = null;
+
 			if (string.IsNullOrWhiteSpace(expressionString))
-				throw new ArgumentNullException("Given expression must not be empty!");
+			{
+				errText = "Given expression must not be empty!";
+				return null;
+			}
 
-			var p = DParser.Create(new System.IO.StringReader(expressionString));
-			p.Step();
-			var x = p.Expression();
+			using (var sr = new System.IO.StringReader(expressionString))
+			{
+				var p = DParser.Create(sr);
+				p.Step();
+				var x = p.Expression();
 
-			if (p.ParseErrors.Count > 0)
-				throw new ArgumentException("Column "+p.ParseErrors[0].Location.Column+ ": "+p.ParseErrors[0].Message);
+				if (p.ParseErrors.Count > 0)
+					errText = "Column " + p.ParseErrors[0].Location.Column + ": " + p.ParseErrors[0].Message;
 
-			UpdateExpression(x);
+				return x;
+			}
 		}
 
 		/// <summary>
