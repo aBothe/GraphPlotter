@@ -152,16 +152,16 @@ namespace GraphPlotter.Plotting
 		/// <param name="opEx"></param>
 		/// <param name="constant"></param>
 		/// <returns></returns>
-		bool VisitOperatorExpression(OperatorBasedExpression opEx, out double constant)
+		bool VisitOperatorExpression(OperatorBasedExpression opEx, out double constant, bool emit = true)
 		{
+			constant = 0;
 			bool leftConst, rightConst;
 			double lv = 0, rv = 0;
 			leftConst = TryEvalConstExpression(opEx.LeftOperand, out lv);
 
 			bool leftValueAlreadyPushed = false;
 			bool affectedByAssociativity =	opEx.OperatorToken == DTokens.Times || 
-											opEx.OperatorToken == DTokens.Div ||
-											opEx.OperatorToken == DTokens.Pow;
+											opEx.OperatorToken == DTokens.Div;
 
 			OperatorBasedExpression sx;
 			if (affectedByAssociativity && opEx.RightOperand is OperatorBasedExpression)
@@ -174,6 +174,8 @@ namespace GraphPlotter.Plotting
 				{
 					lv = ConstMathOp(lv, rv, opEx.OperatorToken);
 				}
+				else if(!emit)
+					return false;
 				else
 				{
 					if (leftConst)
@@ -200,7 +202,8 @@ namespace GraphPlotter.Plotting
 				constant = ConstMathOp(lv, rv, sx.OperatorToken);
 				return true;
 			}
-			constant = 0;
+			else if (!emit)
+				return false;
 
 			if (!leftValueAlreadyPushed)
 			{
@@ -223,7 +226,7 @@ namespace GraphPlotter.Plotting
 		{
 			result = 0;
 			return	(x is OperatorBasedExpression &&
-					VisitOperatorExpression(x as OperatorBasedExpression, out result)) ||
+					VisitOperatorExpression(x as OperatorBasedExpression, out result, false)) ||
 					(x is IdentifierExpression &&
 					TryEvalConstIdentifier(x as IdentifierExpression, out result));
 		}
