@@ -13,37 +13,10 @@ namespace GraphPlotter.Plotting
 	class PlotCanvas : Canvas
 	{
 		#region Properties
-		public const int MaximumFunctionCount = 5;
 		HBox funcOverlayBox;
-		public readonly ObservableCollection<Function> Functions = new ObservableCollection<Function>();
 		bool updatingGraphEntries;
 
-		/// <summary>
-		/// The mathematical point to take for the upper left corner.
-		/// </summary>
-		public Point BaseLocation;
-		public double Scale_X;
-		public double Scale_Y;
-
-		const double Scale_Min = 0.4;
-
-		public double MovingDelta;
-		public double ScalingDelta;
-
-		public const double DotsPerCentimeter = 40; // ISSUE: Assume 96 as actual (dots per inch) number - It's windows standard
-
-		double DeltaX { get { return CalculationDensity / (DotsPerCentimeter * Scale_X); } }
-		double YMultiplier { get { return DotsPerCentimeter * Scale_Y; } }
-
-		public int CalculationDensity;
-		public double TickDensity_XAxis;
-		public double TickDensity_YAxis;
-
-		public readonly TextLayout tickLabelFont;
-		public Color axisColor;
-		public Color gridColor;
-		public double gridThickness;
-		public double axisThickness;
+		public PlotCanvasOptions Options;
 		#endregion
 
 		#region Constructor/Init
@@ -87,122 +60,21 @@ namespace GraphPlotter.Plotting
 		#endregion
 
 		#region Settings
-		void BeginUpdateGraphs() { updatingGraphEntries = true; }
-		void FinishUpdateGraphs() { updatingGraphEntries = false; Redraw(); }
-
-		public void LoadDefaultSettings(bool redraw = false)
-		{
-			BaseLocation = new Point(0, 0);
-
-			RestoreDefaultScaling(false);
-
-			MovingDelta = 1;
-			ScalingDelta = 0.1;
-
-			CalculationDensity = 2;
-
-			TickDensity_XAxis = 0.2;
-			TickDensity_YAxis = 0.2;
-
-			axisColor = Colors.Black;
-			axisThickness = 1;
-
-			gridColor = Color.FromBytes(0xee, 0xee, 0xee);
-			gridThickness = 1;
-
-			tickLabelFont.Font = tickLabelFont.Font.WithPointSize(7);
-		}
+		public void BeginUpdateGraphs() { updatingGraphEntries = true; }
+		public void FinishUpdateGraphs() { updatingGraphEntries = false; Redraw(); }
 
 		public void LoadSettingsFromXml(XmlReader x)
 		{
-			double x_ = 0d, y_ = 0d;
 			while (x.Read())
 			{
-				switch (x.LocalName)
-				{
-					case "BaseLocation":
-						x_ = 0d;
-						y_ = 0d;
-						if (x.MoveToAttribute("x"))
-							x_ = x.ReadContentAsDouble();
-						if (x.MoveToAttribute("y"))
-							y_ = x.ReadContentAsDouble();
-						if (x.MoveToAttribute("delta"))
-							MovingDelta = x.ReadContentAsDouble();
-						BaseLocation = new Point(x_, y_);
-						break;
-					case "Scaling":
-						if (x.MoveToAttribute("x"))
-							Scale_X = Math.Min(x.ReadContentAsDouble(),Scale_Min);
-						if (x.MoveToAttribute("y"))
-							Scale_Y = Math.Min(x.ReadContentAsDouble(), Scale_Min);
-						if (x.MoveToAttribute("delta"))
-							ScalingDelta = x.ReadContentAsDouble();
-						break;
-					case "CalculationDensity":
-						if (x.MoveToAttribute("value"))
-							CalculationDensity = Math.Min(1, x.ReadContentAsInt());
-						break;
-					case "AxisTickDensty":
-						if (x.MoveToAttribute("x"))
-							TickDensity_XAxis = Math.Min(x.ReadContentAsDouble(), 0.001);
-						if (x.MoveToAttribute("y"))
-							TickDensity_YAxis = Math.Min(x.ReadContentAsDouble(), 0.001);
-						break;
-
-					case "Functions":
-						updatingGraphEntries = true;
-						Functions.Clear();
-						var subTree = x.ReadSubtree();
-						while (subTree.Read())
-						{
-							if (subTree.LocalName == "Function")
-							{
-								var f = Function.LoadFrom(subTree.ReadSubtree());
-								if (f != null)
-									Functions.Add(f);
-							}
-						}
-						updatingGraphEntries = false;
-						break;
-				}
 			}
 		}
 
 		public void SaveToXml(XmlWriter x)
 		{
-			x.WriteStartElement("BaseLocation");
-			x.WriteAttributeString("x", BaseLocation.X.ToString());
-			x.WriteAttributeString("y", BaseLocation.Y.ToString());
-			x.WriteAttributeString("delta", MovingDelta.ToString());
-			x.WriteEndElement();
+			Options.SaveToXml(x);
 
-			x.WriteStartElement("Scaling");
-			x.WriteAttributeString("x", Scale_X.ToString());
-			x.WriteAttributeString("y", Scale_Y.ToString());
-			x.WriteAttributeString("delta", ScalingDelta.ToString());
-			x.WriteEndElement();
-
-			x.WriteStartElement("CalculationDensity");
-			x.WriteAttributeString("value", CalculationDensity.ToString());
-			x.WriteEndElement();
-
-			x.WriteStartElement("AxisTickDensty");
-			x.WriteAttributeString("x", TickDensity_XAxis.ToString());
-			x.WriteAttributeString("y", TickDensity_YAxis.ToString());
-			x.WriteEndElement();
-
-			if (Functions.Count > 0)
-			{
-				x.WriteStartElement("Functions");
-				foreach(var f in Functions)
-				{
-					x.WriteStartElement("Function");
-					f.SaveTo(x);
-					x.WriteEndElement();
-				}
-				x.WriteEndElement();
-			}
+			
 		}
 		#endregion
 
@@ -456,8 +328,7 @@ namespace GraphPlotter.Plotting
 
 		public void RestoreDefaultScaling(bool redraw = true)
 		{
-			Scale_X = 4;
-			Scale_Y = 4;
+			Options.RestoreDefaultScaling();
 			if (redraw)
 				Redraw();
 		}

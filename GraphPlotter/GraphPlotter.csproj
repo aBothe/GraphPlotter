@@ -68,6 +68,10 @@
     <Compile Include="Plotting\PlotCanvas.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Plotting\PlotCanvasOptions.cs" />
+    <Compile Include="Plotting\SettingsOverlay.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

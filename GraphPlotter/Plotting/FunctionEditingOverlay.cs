@@ -20,7 +20,7 @@ namespace GraphPlotter.Plotting
 
 			MarginRight = 10;
 
-			plot.Functions.CollectionChanged += Functions_CollectionChanged;
+			plot.Options.Functions.CollectionChanged += Functions_CollectionChanged;
 
 			var mainVBox = new VBox();
 			Content = mainVBox;
@@ -35,7 +35,7 @@ namespace GraphPlotter.Plotting
 			addFuncButton.Clicked += (s, e) => { 
 				var fid = new FunctionInputDialog();
 				if (fid.Run(ParentWindow) == Command.Ok)
-					plot.Functions.Add(fid.Function);
+					plot.Options.Functions.Add(fid.Function);
 			};
 			footerHBox.PackEnd(addFuncButton, BoxMode.None);
 		}
@@ -74,7 +74,7 @@ namespace GraphPlotter.Plotting
 					throw new NotImplementedException("Other list operations are not implemented yet");
 			}
 
-			if (Plot.Functions.Count >= PlotCanvas.MaximumFunctionCount)
+			if (Plot.Options.Functions.Count >= PlotCanvasOptions.MaximumFunctionCount)
 			{
 				addFuncButton.Sensitive = false;
 				addFuncButton.Visible = false;
@@ -117,7 +117,7 @@ namespace GraphPlotter.Plotting
 
 				mb = new MenuItem("Remove");
 				m.Items.Add(mb);
-				mb.Clicked += (s, e) => plot.Functions.Remove(Function);
+				mb.Clicked += (s, e) => plot.Options.Functions.Remove(Function);
 			}
 
 			void f_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
