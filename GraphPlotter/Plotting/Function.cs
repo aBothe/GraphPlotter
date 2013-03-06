@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using Xwt.Drawing;
 
 namespace GraphPlotter.Plotting
@@ -88,6 +89,53 @@ namespace GraphPlotter.Plotting
 				throw new Exception(errText);
 			f.UpdateExpression(x);
 			return f;
+		}
+
+		public static Function LoadFrom(XmlReader x)
+		{
+			var f = new Function();
+
+			while (x.Read())
+			{
+				switch (x.LocalName)
+				{
+					case "Visible":
+						f.visible = x.ReadString().ToLower() == "true";
+						break;
+					case "Name":
+						f.name = x.ReadString();
+						break;
+					case "Expression":
+						try
+						{
+							string errText;
+							var expression = ParseExpressionString(x.ReadString(), out errText);
+
+							if (errText != null || expression == null)
+								return null;
+
+							f.UpdateExpression(expression);
+						}
+						catch {
+							return null;
+						}
+						break;
+				}
+			}
+			return f;
+		}
+
+		public void SaveTo(XmlWriter x)
+		{
+			x.WriteElementString("Visible", visible.ToString());
+
+			x.WriteStartElement("Name");
+			x.WriteCData(name);
+			x.WriteEndElement();
+
+			x.WriteStartElement("Expression");
+			x.WriteCData(expression.ToString());
+			x.WriteEndElement();
 		}
 		#endregion
 

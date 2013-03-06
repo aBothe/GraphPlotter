@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using Xwt;
 
 namespace GraphPlotter
@@ -10,13 +11,32 @@ namespace GraphPlotter
 	class MainForm : Window
 	{
 		#region Properties
+		public const string WindowTitle = "GraphPlotter";
+
+		public const string SessionFileExtension = ".gpsess";
+		public readonly FileDialogFilter SessionFileFilter = new FileDialogFilter("GraphPlotter Session (*.gpsess)", "*.gpsess");
+
+		string sessFile;
+		public string SessionFile
+		{
+			get { return sessFile; }
+			set
+			{
+				sessFile = value;
+				if (!string.IsNullOrEmpty(sessFile))
+					Title = WindowTitle+ " [" + sessFile + "]";
+				else
+					Title = WindowTitle;
+			}
+		}
 		readonly PlotCanvas plot = new PlotCanvas();
+
 
 		#endregion
 
 		#region Init/Constructor
 		public MainForm()
-			: base("GraphPlotter")
+			: base(WindowTitle)
 		{
 			BuildMenu();
 			BuildGui();
@@ -36,9 +56,30 @@ namespace GraphPlotter
 			var ss = new Menu();
 			s.SubMenu = ss;
 
-			var b = new MenuItem("Export as png");
-			b.Clicked += (sender, ea) => 
-				plot.RenderIntoPng("dump.png"); //TODO
+			var b = new MenuItem("Load session...");
+			b.Clicked += (sender, ea) => Open();
+			ss.Items.Add(b);
+
+			b = new MenuItem("Save session");
+			b.Clicked += (sender, ea) => Save();
+			ss.Items.Add(b);
+
+			b = new MenuItem("Save session as...");
+			b.Clicked += (sender, ea) => SaveAs();
+			ss.Items.Add(b);
+
+			ss.Items.Add(new SeparatorMenuItem());
+
+			b = new MenuItem("Export as png");
+			b.Clicked += (sender, ea) =>
+			{
+				var dlg = new SaveFileDialog("Export plot as .png file");
+				dlg.Filters.Add(new FileDialogFilter("Picture network graphic", ".png"));
+				dlg.InitialFileName = "Plot.png";
+				dlg.ActiveFilter = dlg.Filters[dlg.Filters.Count - 1];
+				if(dlg.Run(this))
+					plot.RenderIntoPng(dlg.FileName);
+			};
 			ss.Items.Add(b);
 
 			ss.Items.Add(new SeparatorMenuItem());
@@ -68,6 +109,12 @@ namespace GraphPlotter
 			b = new MenuItem("Reset scaling");
 			b.Clicked += (sender, ea) => plot.RestoreDefaultScaling();
 			ss.Items.Add(b);
+
+			ss.Items.Add(new SeparatorMenuItem());
+
+			b = new MenuItem("Reset settings");
+			b.Clicked += (sender, ea) => plot.LoadDefaultSettings(true);
+			ss.Items.Add(b);
 		}
 
 		void BuildGui()
@@ -77,6 +124,78 @@ namespace GraphPlotter
 			Content = plot;
 		}
 
+		protected override bool OnCloseRequested()
+		{
+			var cmd = MessageDialog.AskQuestion("You try to leave GraphPlotter","Do you want to save the session?", 0, Command.Yes, Command.No, Command.Cancel);
+
+			if (cmd == Command.Cancel)
+				return true;
+
+			if (cmd == Command.Yes)
+				Save();
+
+			return base.OnCloseRequested();
+		}
+		#endregion
+
+		#region Settings
+		public bool Open()
+		{
+			var dlg = new OpenFileDialog("Load session...");
+			dlg.Filters.Add(SessionFileFilter);
+			dlg.ActiveFilter = dlg.Filters[dlg.Filters.Count - 1];
+
+			if (!dlg.Run(this))
+				return false;
+
+			try
+			{
+				using (var x = XmlReader.Create(dlg.FileName))
+					plot.LoadSettingsFromXml(x);
+				SessionFile = dlg.FileName;
+				return true;
+			}
+			catch (Exception ex)
+			{
+				MessageDialog.ShowError("Error during loading file", ex.Message);
+			}
+			return false;
+		}
+
+		public bool Save()
+		{
+			if (string.IsNullOrEmpty(SessionFile))
+				return SaveAs();
+
+			try
+			{
+				using (var x = XmlWriter.Create(SessionFile))
+					plot.SaveToXml(x);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				MessageDialog.ShowError(ex.Message);
+			}
+			return false;
+		}
+
+		public bool SaveAs()
+		{
+			var dlg = new SaveFileDialog("Save session as...");
+			dlg.Filters.Add(SessionFileFilter);
+			dlg.ActiveFilter = dlg.Filters[dlg.Filters.Count - 1];
+
+			dlg.InitialFileName = "session.gpsess";
+			
+			if (!dlg.Run(this))
+				return false;
+
+			SessionFile = dlg.FileName;
+			Save();
+
+			return true;
+		}
 		#endregion
 	}
 }
