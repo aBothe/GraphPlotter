@@ -98,7 +98,7 @@ namespace GraphPlotter
 
 			b = new MenuItem("Clear functions");
 			b.Clicked += (sender, ea) => 
-				plot.Functions.Clear();
+				plot.Options.Functions.Clear();
 			ss.Items.Add(b);
 
 			b = new MenuItem("Center origin");
@@ -107,13 +107,13 @@ namespace GraphPlotter
 			ss.Items.Add(b);
 
 			b = new MenuItem("Reset scaling");
-			b.Clicked += (sender, ea) => plot.RestoreDefaultScaling();
+			b.Clicked += (sender, ea) => plot.Options.RestoreDefaultScaling();
 			ss.Items.Add(b);
 
 			ss.Items.Add(new SeparatorMenuItem());
 
 			b = new MenuItem("Reset settings");
-			b.Clicked += (sender, ea) => plot.LoadDefaultSettings(true);
+			b.Clicked += (sender, ea) => plot.Options.LoadDefaultSettings();
 			ss.Items.Add(b);
 		}
 
@@ -151,7 +151,7 @@ namespace GraphPlotter
 			try
 			{
 				using (var x = XmlReader.Create(dlg.FileName))
-					plot.LoadSettingsFromXml(x);
+					plot.Options.LoadSettingsFromXml(x);
 				SessionFile = dlg.FileName;
 				return true;
 			}
@@ -170,7 +170,7 @@ namespace GraphPlotter
 			try
 			{
 				using (var x = XmlWriter.Create(SessionFile))
-					plot.SaveToXml(x);
+					plot.Options.SaveToXml(x);
 				return true;
 			}
 			catch (Exception ex)

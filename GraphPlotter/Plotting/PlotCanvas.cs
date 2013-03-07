@@ -22,23 +22,22 @@ namespace GraphPlotter.Plotting
 		#region Constructor/Init
 		public PlotCanvas()
 		{
+			Options = new PlotCanvasOptions(this);
+
 			CanGetFocus = true;
 
 			funcOverlayBox = new HBox();
 			AddChild(funcOverlayBox);
 
 			funcOverlayBox.PackEnd(new FunctionEditingOverlay(this), BoxMode.Fill);
+
+			Options.Functions.CollectionChanged += Graphs_CollectionChanged;
 			
-			Functions.CollectionChanged += Graphs_CollectionChanged;
-			tickLabelFont = new TextLayout(this);
-
-			LoadDefaultSettings();
-
 
 
 			BeginUpdateGraphs();
-			Functions.Add(Function.Parse("f", "-(x^^2)-sin(x*pi*8)"));
-			Functions.Add(Function.Parse("g",  "sin(x*pi*2)"));
+			Options.Functions.Add(Function.Parse("f", "-(x^^2)-sin(x*pi*8)"));
+			Options.Functions.Add(Function.Parse("g", "sin(x*pi*2)"));
 			FinishUpdateGraphs();
 		}
 
@@ -62,20 +61,6 @@ namespace GraphPlotter.Plotting
 		#region Settings
 		public void BeginUpdateGraphs() { updatingGraphEntries = true; }
 		public void FinishUpdateGraphs() { updatingGraphEntries = false; Redraw(); }
-
-		public void LoadSettingsFromXml(XmlReader x)
-		{
-			while (x.Read())
-			{
-			}
-		}
-
-		public void SaveToXml(XmlWriter x)
-		{
-			Options.SaveToXml(x);
-
-			
-		}
 		#endregion
 
 		#region Drawing (Highlevel)
@@ -94,12 +79,12 @@ namespace GraphPlotter.Plotting
 			{
 				clearBackground = fillBackground;
 				// Backup, set and reset calculation density to 1 to achieve maximum render performance
-				var density_Backup = CalculationDensity;
-				CalculationDensity = 1;
+				var density_Backup = Options.CalculationDensity;
+				Options.CalculationDensity = 1;
 
 				OnDraw(imgBuilder.Context, Bounds);
 
-				CalculationDensity = density_Backup;
+				Options.CalculationDensity = density_Backup;
 
 				return imgBuilder.ToImage();
 			}
@@ -136,15 +121,22 @@ namespace GraphPlotter.Plotting
 
 		void DrawGrid(Context ctxt, Rectangle dirtyRect)
 		{
-			ctxt.SetColor(gridColor);
-			if(gridThickness > 0)
-				ctxt.SetLineWidth(gridThickness);
+			var Scale_X = Options.Scale_X;
+			var Scale_Y = Options.Scale_Y;
+			var TickDensity_XAxis = Options.TickDensity_XAxis;
+			var TickDensity_YAxis = Options.TickDensity_YAxis;
+			var Base_X = Options.BaseLocation.X;
+			var Base_Y = Options.BaseLocation.Y;
+
+			ctxt.SetColor(Options.gridColor);
+			if (Options.gridThickness > 0)
+				ctxt.SetLineWidth(Options.gridThickness);
 
 			// Draw vertical grid
-			var tickDens_X = Scale_X * DotsPerCentimeter * TickDensity_XAxis;
-			var initialVisPosition_X = -(BaseLocation.X % TickDensity_XAxis) * Scale_X * DotsPerCentimeter;
+			var tickDens_X = Scale_X * PlotCanvasOptions.DotsPerCentimeter * TickDensity_XAxis;
+			var initialVisPosition_X = -(Base_X % TickDensity_XAxis) * Scale_X * PlotCanvasOptions.DotsPerCentimeter;
 
-			if (gridThickness > 0)
+			if (Options.gridThickness > 0)
 				for (var visualPosition = initialVisPosition_X; 
 					visualPosition < dirtyRect.Width; 
 					visualPosition += tickDens_X)
@@ -154,9 +146,9 @@ namespace GraphPlotter.Plotting
 				}
 
 			// Draw horizontal grid
-			var tickDens_Y = Scale_Y * DotsPerCentimeter * TickDensity_YAxis;
-			var initialVisPosition_Y = (BaseLocation.Y % TickDensity_YAxis) * Scale_Y * DotsPerCentimeter;
-			if (gridThickness > 0)
+			var tickDens_Y = Scale_Y * PlotCanvasOptions.DotsPerCentimeter * TickDensity_YAxis;
+			var initialVisPosition_Y = (Base_Y % TickDensity_YAxis) * Scale_Y * PlotCanvasOptions.DotsPerCentimeter;
+			if (Options.gridThickness > 0)
 				for (var visualPosition = initialVisPosition_Y; 
 					visualPosition < dirtyRect.Height; 
 					visualPosition += tickDens_Y)
@@ -167,14 +159,14 @@ namespace GraphPlotter.Plotting
 
 			ctxt.Stroke();
 
-			if (axisThickness < 0)
+			if (Options.axisThickness < 0)
 				return;
 
-			ctxt.SetColor(axisColor);
-			ctxt.SetLineWidth(axisThickness);
+			ctxt.SetColor(Options.axisColor);
+			ctxt.SetLineWidth(Options.axisThickness);
 
 			// Draw Y-Axis
-			var axisPosition_y = -(BaseLocation.X * Scale_X * DotsPerCentimeter);
+			var axisPosition_y = -(Base_X * Scale_X * PlotCanvasOptions.DotsPerCentimeter);
 			if (axisPosition_y >= 0 && axisPosition_y <= dirtyRect.Width)
 			{
 				ctxt.Translate(axisPosition_y, 0);
@@ -185,15 +177,15 @@ namespace GraphPlotter.Plotting
 
 				// Draw Y-Labels
 				ctxt.MoveTo(0, 0);
-				var y = Math.Round(BaseLocation.Y - (BaseLocation.Y % TickDensity_YAxis) + TickDensity_YAxis,1);
+				var y = Math.Round(Base_Y - (Base_Y % TickDensity_YAxis) + TickDensity_YAxis,1);
 				for (var visualPosition = initialVisPosition_Y - tickDens_Y;
 						visualPosition < dirtyRect.Height;
 						visualPosition += tickDens_Y)
 				{
 					if (y < -0.01 || y > 0.01)
 					{
-						tickLabelFont.Text = Math.Round(y, 1).ToString();
-						ctxt.DrawTextLayout(tickLabelFont, 2, visualPosition);
+						Options.tickLabelFont.Text = Math.Round(y, 1).ToString();
+						ctxt.DrawTextLayout(Options.tickLabelFont, 2, visualPosition);
 					}
 					y -= TickDensity_YAxis;
 				}
@@ -203,7 +195,7 @@ namespace GraphPlotter.Plotting
 			}	
 
 			// Draw X-Axis
-			var axisPosition_x = BaseLocation.Y * Scale_Y * DotsPerCentimeter;
+			var axisPosition_x = Base_Y * Scale_Y * PlotCanvasOptions.DotsPerCentimeter;
 			if (axisPosition_x >= 0 && axisPosition_x <= dirtyRect.Height)
 			{
 				ctxt.Translate(0, axisPosition_x);
@@ -213,17 +205,17 @@ namespace GraphPlotter.Plotting
 				ctxt.Stroke();
 
 				// Draw X-Labels
-				var labelYOffset = -tickLabelFont.Height - 2;
+				var labelYOffset = -Options.tickLabelFont.Height - 2;
 				ctxt.MoveTo(0, 0);
-				var x = Math.Round(BaseLocation.X - (BaseLocation.X % TickDensity_XAxis) - TickDensity_XAxis, 1);
+				var x = Math.Round(Base_X - (Base_X % TickDensity_XAxis) - TickDensity_XAxis, 1);
 				for (var visualPosition = initialVisPosition_X - tickDens_X;
 						visualPosition < dirtyRect.Width;
 						visualPosition += tickDens_X)
 				{
 					if (x < -0.01 || x > 0.01)
 					{
-						tickLabelFont.Text = Math.Round(x,1).ToString();
-						ctxt.DrawTextLayout(tickLabelFont, visualPosition, labelYOffset);
+						Options.tickLabelFont.Text = Math.Round(x,1).ToString();
+						ctxt.DrawTextLayout(Options.tickLabelFont, visualPosition, labelYOffset);
 					}
 					x += TickDensity_XAxis;
 				}
@@ -235,49 +227,31 @@ namespace GraphPlotter.Plotting
 			ctxt.SetLineWidth(1);
 		}
 
-		double GetMinimalX()
-		{
-			return BaseLocation.X;
-		}
-
-		double GetMinimalY(double windowHeight)
-		{
-			return BaseLocation.Y - (windowHeight / Scale_Y);
-		}
-
-		double GetMaximalX(double windowWidth)
-		{
-			return BaseLocation.X + (windowWidth / (Scale_X * CalculationDensity));
-		}
-
-		double GetMaximalY()
-		{
-			return BaseLocation.Y;
-		}
-
 		void DrawGraphs(Context ctxt, Rectangle dirtyRect)
 		{
-			if (Functions.Count == 0)
+			if (Options.Functions.Count == 0)
 				return;
 
-			var x_max = GetMaximalX(dirtyRect.Width);
-			var x_delta = DeltaX;
+			var calcDens = Options.CalculationDensity;
 
-			var y_multiplier = -YMultiplier;
+			var x_max = Options.BaseLocation.X + (dirtyRect.Width / (Options.Scale_X * calcDens));
+			var x_delta = Options.DeltaX;
+
+			var y_multiplier = -Options.YMultiplier;
 			var y = 0d;
-			var y_min = GetMinimalY(dirtyRect.Height);
-			var y_max = GetMaximalY();
+			var y_min = Options.BaseLocation.Y - (dirtyRect.Height / Options.Scale_Y);
+			var y_max = Options.BaseLocation.Y;
 
-			foreach (var f in Functions)
+			foreach (var f in Options.Functions)
 			{
 				if (!f.Visible)
 					continue;
 
 				y = 0d;
-				var x = GetMinimalX();
+				var x = Options.BaseLocation.X;
 				ctxt.SetColor(f.GraphColor);
 				ctxt.MoveTo(0, 0);
-				for (var px = 0 ; px <= dirtyRect.Width; px += CalculationDensity)
+				for (var px = 0; px <= dirtyRect.Width; px += calcDens)
 				{
 					try
 					{
@@ -318,9 +292,9 @@ namespace GraphPlotter.Plotting
 		public void CenterBaseLocation(bool redraw = true)
 		{
 			var sz = Size;
-			var newX = -(sz.Width / (2 * DotsPerCentimeter * Scale_X));
-			var newY = sz.Height / (2 * DotsPerCentimeter * Scale_Y);
-			BaseLocation = new Point(newX, newY);
+			var newX = -(sz.Width / (2 * PlotCanvasOptions.DotsPerCentimeter * Options.Scale_X));
+			var newY = sz.Height / (2 * PlotCanvasOptions.DotsPerCentimeter * Options.Scale_Y);
+			Options.BaseLocation = new Point(newX, newY);
 
 			if (redraw)
 				Redraw();
@@ -338,7 +312,7 @@ namespace GraphPlotter.Plotting
 			if (args.Button == PointerButton.Left)
 			{
 				if (!moving)
-					CalculationDensity *= 2;
+					Options.CalculationDensity *= 2;
 				moving = true;
 				triggerPos = new Point(args.X, args.Y);
 			}
@@ -350,7 +324,7 @@ namespace GraphPlotter.Plotting
 			if (args.Button == PointerButton.Left)
 			{
 				if (moving)
-					CalculationDensity /= 2;
+					Options.CalculationDensity /= 2;
 				moving = false;
 			}
 
@@ -363,9 +337,9 @@ namespace GraphPlotter.Plotting
 
 			if (moving)
 			{
-				var newX = BaseLocation.X + (triggerPos.X - args.X) / (DotsPerCentimeter * Scale_X);
-				var newY = BaseLocation.Y + (args.Y - triggerPos.Y) / (DotsPerCentimeter * Scale_Y);
-				BaseLocation = new Point(newX, newY);
+				var newX = (triggerPos.X - args.X) / (PlotCanvasOptions.DotsPerCentimeter * Options.Scale_X);
+				var newY = (args.Y - triggerPos.Y) / (PlotCanvasOptions.DotsPerCentimeter * Options.Scale_Y);
+				Options.BaseLocation = Options.BaseLocation.Offset(newX, newY);
 				triggerPos = new Point(args.X, args.Y);
 
 				Redraw();
@@ -374,36 +348,39 @@ namespace GraphPlotter.Plotting
 
 		protected override void OnMouseScrolled(MouseScrolledEventArgs args)
 		{
+			var ScalingDelta = Options.ScalingDelta;
+			var MovingDelta = Options.MovingDelta;
+
 			switch (args.Direction)
 			{
 				case ScrollDirection.Down:
 					if (scaleOnScroll)
 					{
-						Scale_X -= ScalingDelta;
-						Scale_Y -= ScalingDelta;
+						Options.Scale_X -= ScalingDelta;
+						Options.Scale_Y -= ScalingDelta;
 
-						if (Scale_X < Scale_Min)
-							Scale_X = Scale_Min;
-						if (Scale_Y < Scale_Min)
-							Scale_Y = Scale_Min;
+						if (Options.Scale_X < PlotCanvasOptions.Scale_Min)
+							Options.Scale_X = PlotCanvasOptions.Scale_Min;
+						if (Options.Scale_Y < PlotCanvasOptions.Scale_Min)
+							Options.Scale_Y = PlotCanvasOptions.Scale_Min;
 					}
 					else
-						BaseLocation.Y -= MovingDelta / Scale_Y;
+						Options.BaseLocation.Y -= MovingDelta / Options.Scale_Y;
 					break;
 				case ScrollDirection.Up:
 					if (scaleOnScroll)
 					{
-						Scale_X += ScalingDelta;
-						Scale_Y += ScalingDelta;
+						Options.Scale_X += ScalingDelta;
+						Options.Scale_Y += ScalingDelta;
 					}
 					else
-						BaseLocation.Y += MovingDelta / Scale_Y;
+						Options.BaseLocation.Y += MovingDelta / Options.Scale_Y;
 					break;
 				case ScrollDirection.Left:
-					BaseLocation.X -= MovingDelta / Scale_X;
+					Options.BaseLocation.X -= MovingDelta / Options.Scale_X;
 					break;
 				case ScrollDirection.Right:
-					BaseLocation.X += MovingDelta / Scale_X;
+					Options.BaseLocation.X += MovingDelta / Options.Scale_X;
 					break;
 			}
 
@@ -414,6 +391,7 @@ namespace GraphPlotter.Plotting
 
 		protected override void OnKeyPressed(KeyEventArgs args)
 		{
+			var MovingDelta = Options.MovingDelta;
 			base.OnKeyPressed(args);
 
 			switch (args.Key)
@@ -423,16 +401,16 @@ namespace GraphPlotter.Plotting
 					scaleOnScroll = true;
 					return;
 				case Key.Left:
-					BaseLocation.X -= MovingDelta / Scale_X;
+					Options.BaseLocation.X -= MovingDelta / Options.Scale_X;
 					break;
 				case Key.Right:
-					BaseLocation.X += MovingDelta / Scale_X;
+					Options.BaseLocation.X += MovingDelta / Options.Scale_X;
 					break;
 				case Key.Up:
-					BaseLocation.Y += MovingDelta / Scale_Y;
+					Options.BaseLocation.Y += MovingDelta / Options.Scale_Y;
 					break;
 				case Key.Down:
-					BaseLocation.Y -= MovingDelta / Scale_Y;
+					Options.BaseLocation.Y -= MovingDelta / Options.Scale_Y;
 					break;
 			}
 
