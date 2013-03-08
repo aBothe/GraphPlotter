@@ -24,12 +24,14 @@ namespace GraphPlotter.Plotting
 			var dbl = typeof(double);
 			MathPow = math.GetMethod("Pow", new[]{ dbl,dbl });
 			
-			SingleArgMathFunctions["sin"] = math.GetMethod("Sin", new[] { dbl });
-			SingleArgMathFunctions["tan"] = math.GetMethod("Tan", new[] { dbl });
-			SingleArgMathFunctions["cos"] = math.GetMethod("Cos", new[] { dbl });
-			SingleArgMathFunctions["abs"] = math.GetMethod("Abs", new[] { dbl });
-			SingleArgMathFunctions["ln"] = math.GetMethod("Log", new[] { dbl });
-			SingleArgMathFunctions["log"] = math.GetMethod("Log10", new[] { dbl });
+			var dblA = new[] { dbl };
+			SingleArgMathFunctions["sin"] = math.GetMethod("Sin", dblA);
+			SingleArgMathFunctions["tan"] = math.GetMethod("Tan", dblA);
+			SingleArgMathFunctions["cos"] = math.GetMethod("Cos", dblA);
+			SingleArgMathFunctions["abs"] = math.GetMethod("Abs", dblA);
+			SingleArgMathFunctions["ln"] = math.GetMethod("Log", dblA);
+			SingleArgMathFunctions["log"] = math.GetMethod("Log10", dblA);
+			SingleArgMathFunctions["sqrt"] = math.GetMethod("Sqrt", dblA);
 		}
 
 		static int methodNum = 1;
