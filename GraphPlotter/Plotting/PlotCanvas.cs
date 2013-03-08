@@ -29,6 +29,7 @@ namespace GraphPlotter.Plotting
 			funcOverlayBox = new HBox();
 			AddChild(funcOverlayBox);
 
+			funcOverlayBox.PackStart(new SettingsOverlay(this), BoxMode.Fill);
 			funcOverlayBox.PackEnd(new FunctionEditingOverlay(this), BoxMode.Fill);
 
 			Options.Functions.CollectionChanged += Graphs_CollectionChanged;
