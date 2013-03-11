@@ -324,6 +324,7 @@ namespace GraphPlotter.Plotting
 		{
 			if (args.Button == PointerButton.Left)
 			{
+				SetFocus();
 				if (!moving)
 					Options.CalculationDensity *= 2;
 				moving = true;

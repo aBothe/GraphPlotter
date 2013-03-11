@@ -6,17 +6,17 @@ GraphPlotter
 '#' = Done
 
 # Beliebige Funktionen y = f(x) darstellen
-- Mehrere Funktionen darstellen => Unterschiedliche Farben => Funktionslegende auf Plot einzeichnen(?)
+# Mehrere Funktionen darstellen => Unterschiedliche Farben => Funktionslegende auf Plot einzeichnen(?)
 
 # Funktionsexpression (D_Parser) einlesen & in MSIL kompilieren(?) => Damit die Funktion darstellen
 - Konstanten in Tabelle definieren (Propertygrid?)
 - Funktionen in Tabelle definieren
-- X/Y-Skalierung via Textfeld, +/- Button und Checkbox, ob Seitenverhältnis beibehalten werden soll
+# X/Y-Skalierung via Textfeld, +/- Button und Checkbox, ob Seitenverhältnis beibehalten werden soll
 # Drag'n'Drop der Skalierung/Achsenverschiebung
-- Ist Skalierung notwendig? Reicht nicht ein Label zur Anzeige?
-- Funktionseingabe/Konstantenverwaltung ein/ausblendbar machen!
+- (Ist Skalierung notwendig? Reicht nicht ein Label zur Anzeige?)
+# Funktionseingabe/Konstantenverwaltung ein/ausblendbar machen!
 
-- Funktions/Kontantenset in Datei speichern / auslesen
+# Funktions/Kontantenset in Datei speichern / auslesen
 # Als png exportieren
 
 - Fullscreen-Mode
