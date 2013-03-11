@@ -128,39 +128,40 @@ namespace GraphPlotter.Plotting
 
 		public void LoadSettingsFromXml(XmlReader x)
 		{
+			double d;
+			Plot.BeginUpdateGraphs();
 			while (x.Read())
 			{
 				switch (x.LocalName)
 				{
 					case "BaseLocation":
-						if (x.MoveToAttribute("x"))
-							BaseLocation_X = x.ReadContentAsDouble();
-						if (x.MoveToAttribute("y"))
-							BaseLocation_X = x.ReadContentAsDouble();
-						if (x.MoveToAttribute("delta"))
-							MovingDelta = x.ReadContentAsDouble();
+						if (x.MoveToAttribute("x") && Double.TryParse(x.ReadContentAsString(), out d))
+							BaseLocation_X = d;
+						if (x.MoveToAttribute("y") && Double.TryParse(x.ReadContentAsString(),out d))
+							BaseLocation_Y = d;
+						if (x.MoveToAttribute("delta") && Double.TryParse(x.ReadContentAsString(), out d))
+							MovingDelta = d;
 						break;
 					case "Scaling":
-						if (x.MoveToAttribute("x"))
-							Scale_X = Math.Min(x.ReadContentAsDouble(), Scale_Min);
-						if (x.MoveToAttribute("y"))
-							Scale_Y = Math.Min(x.ReadContentAsDouble(), Scale_Min);
-						if (x.MoveToAttribute("delta"))
-							ScalingDelta = x.ReadContentAsDouble();
+						if (x.MoveToAttribute("x") && Double.TryParse(x.ReadContentAsString(), out d))
+							Scale_X = d;
+						if (x.MoveToAttribute("y") && Double.TryParse(x.ReadContentAsString(), out d))
+							Scale_Y = d;
+						if (x.MoveToAttribute("delta") && Double.TryParse(x.ReadContentAsString(), out d))
+							ScalingDelta = d;
 						break;
 					case "CalculationDensity":
 						if (x.MoveToAttribute("value"))
 							CalculationDensity = Math.Min(1, x.ReadContentAsInt());
 						break;
-					case "AxisTickDensty":
-						if (x.MoveToAttribute("x"))
-							TickDensity_XAxis = Math.Min(x.ReadContentAsDouble(), 0.001);
-						if (x.MoveToAttribute("y"))
-							TickDensity_YAxis = Math.Min(x.ReadContentAsDouble(), 0.001);
+					case "AxisTickDensity":
+						if (x.MoveToAttribute("x") && Double.TryParse(x.ReadContentAsString(), out d))
+							TickDensity_XAxis = Math.Max(d, scaleX * 0.1);
+						if (x.MoveToAttribute("y") && Double.TryParse(x.ReadContentAsString(), out d))
+							TickDensity_YAxis = Math.Max(d, scaleY * 0.1);
 						break;
 
 					case "Functions":
-						Plot.BeginUpdateGraphs();
 						Functions.Clear();
 						var subTree = x.ReadSubtree();
 						while (subTree.Read())
@@ -172,14 +173,16 @@ namespace GraphPlotter.Plotting
 									Functions.Add(f);
 							}
 						}
-						Plot.FinishUpdateGraphs();
 						break;
 				}
 			}
+			Plot.FinishUpdateGraphs();
 		}
 
 		public void SaveToXml(XmlWriter x)
 		{
+			x.WriteStartElement("Options");
+
 			x.WriteStartElement("BaseLocation");
 			x.WriteAttributeString("x", baseX.ToString());
 			x.WriteAttributeString("y", baseY.ToString());
@@ -196,7 +199,7 @@ namespace GraphPlotter.Plotting
 			x.WriteAttributeString("value", CalculationDensity.ToString());
 			x.WriteEndElement();
 
-			x.WriteStartElement("AxisTickDensty");
+			x.WriteStartElement("AxisTickDensity");
 			x.WriteAttributeString("x", TickDensity_XAxis.ToString());
 			x.WriteAttributeString("y", TickDensity_YAxis.ToString());
 			x.WriteEndElement();
@@ -212,6 +215,8 @@ namespace GraphPlotter.Plotting
 				}
 				x.WriteEndElement();
 			}
+
+			x.WriteEndElement();
 		}
 	}
 }

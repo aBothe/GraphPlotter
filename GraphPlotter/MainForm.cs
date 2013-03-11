@@ -1,6 +1,7 @@
 ﻿using GraphPlotter.Plotting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -161,6 +162,12 @@ namespace GraphPlotter
 			dlg.Filters.Add(SessionFileFilter);
 			dlg.ActiveFilter = dlg.Filters[dlg.Filters.Count - 1];
 
+			if (!string.IsNullOrEmpty(SessionFile))
+			{
+				dlg.CurrentFolder = Path.GetDirectoryName(SessionFile);
+				dlg.InitialFileName = Path.GetFileName(SessionFile);
+			}
+
 			if (!dlg.Run(this))
 				return false;
 
@@ -186,7 +193,11 @@ namespace GraphPlotter
 			try
 			{
 				using (var x = XmlWriter.Create(SessionFile))
+				{
+					x.WriteStartDocument();
 					plot.Options.SaveToXml(x);
+					x.WriteEndDocument();
+				}
 				return true;
 			}
 			catch (Exception ex)
@@ -202,7 +213,8 @@ namespace GraphPlotter
 			dlg.Filters.Add(SessionFileFilter);
 			dlg.ActiveFilter = dlg.Filters[dlg.Filters.Count - 1];
 
-			dlg.InitialFileName = "session.gpsess";
+			dlg.CurrentFolder = Path.GetDirectoryName(SessionFile);
+			dlg.InitialFileName = Path.GetFileName(SessionFile) ?? "session.gpsess";
 			
 			if (!dlg.Run(this))
 				return false;
