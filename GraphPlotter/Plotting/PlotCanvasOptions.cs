@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -9,7 +10,7 @@ using Xwt.Drawing;
 
 namespace GraphPlotter.Plotting
 {
-	class PlotCanvasOptions
+	class PlotCanvasOptions : INotifyPropertyChanged
 	{
 		#region Properties
 		public readonly PlotCanvas Plot;
@@ -17,32 +18,52 @@ namespace GraphPlotter.Plotting
 		public readonly ObservableCollection<Function> Functions = new ObservableCollection<Function>();
 		public const int MaximumFunctionCount = 5;
 
+		#region Private
+		double baseX, baseY;
+		double scaleX, scaleY, movingDelta, scalingDelta;
+		int calculationDensity;
+		double tickDensX, tickDensY;
+		#endregion
+		
 		/// <summary>
 		/// The mathematical point to take for the upper left corner.
 		/// </summary>
-		public Point BaseLocation;
-		public double Scale_X;
-		public double Scale_Y;
+		public Point BaseLocation
+		{
+			get { return new Point(baseX,baseY); }
+		}
+		public double BaseLocation_X { get { return baseX; } set { baseX = value; propChanged("BaseLocation_X"); } }
+		public double BaseLocation_Y { get { return baseY; } set { baseY = value; propChanged("BaseLocation_Y"); } }
+		public double Scale_X { get { return scaleX; } set { scaleX = value; propChanged("Scale_X"); } }
+		public double Scale_Y { get { return scaleY; } set { scaleY = value; propChanged("Scale_Y"); } }
 
+		
 		public const double Scale_Min = 0.4;
 
-		public double MovingDelta;
-		public double ScalingDelta;
+		public double MovingDelta { get { return movingDelta; } set { movingDelta = value; propChanged("MovingDelta"); } }
+		public double ScalingDelta { get { return scalingDelta; } set { scalingDelta = value; propChanged("ScalingDelta"); } }
 
 		public const double DotsPerCentimeter = 40; // ISSUE: Assume 96 as actual (dots per inch) number - It's windows standard
 
 		public double DeltaX { get { return CalculationDensity / (DotsPerCentimeter * Scale_X); } }
 		public double YMultiplier { get { return DotsPerCentimeter * Scale_Y; } }
 
-		public int CalculationDensity;
-		public double TickDensity_XAxis;
-		public double TickDensity_YAxis;
+		public int CalculationDensity { get { return calculationDensity; } set { calculationDensity = value; propChanged("CalculationDensity"); } }
+		public double TickDensity_XAxis { get { return tickDensX; } set { tickDensX = value; propChanged("TickDensity_XAxis"); } }
+		public double TickDensity_YAxis { get { return tickDensY; } set { tickDensY = value; propChanged("TickDensity_YAxis"); } }
 
 		public readonly TextLayout tickLabelFont;
 		public Color axisColor;
 		public Color gridColor;
 		public double gridThickness;
 		public double axisThickness;
+
+		public event PropertyChangedEventHandler PropertyChanged;
+		void propChanged(string n)
+		{
+			if (PropertyChanged != null)
+				PropertyChanged(this, new PropertyChangedEventArgs(n));
+		}
 		#endregion
 
 		#region Constructors/Init
@@ -64,7 +85,8 @@ namespace GraphPlotter.Plotting
 
 		public void LoadDefaultSettings()
 		{
-			BaseLocation = new Point(0, 0);
+			BaseLocation_X = 0;
+			BaseLocation_Y = 0;
 
 			RestoreDefaultScaling();
 
@@ -87,21 +109,17 @@ namespace GraphPlotter.Plotting
 
 		public void LoadSettingsFromXml(XmlReader x)
 		{
-			double x_ = 0d, y_ = 0d;
 			while (x.Read())
 			{
 				switch (x.LocalName)
 				{
 					case "BaseLocation":
-						x_ = 0d;
-						y_ = 0d;
 						if (x.MoveToAttribute("x"))
-							x_ = x.ReadContentAsDouble();
+							BaseLocation_X = x.ReadContentAsDouble();
 						if (x.MoveToAttribute("y"))
-							y_ = x.ReadContentAsDouble();
+							BaseLocation_X = x.ReadContentAsDouble();
 						if (x.MoveToAttribute("delta"))
 							MovingDelta = x.ReadContentAsDouble();
-						BaseLocation = new Point(x_, y_);
 						break;
 					case "Scaling":
 						if (x.MoveToAttribute("x"))
@@ -144,8 +162,8 @@ namespace GraphPlotter.Plotting
 		public void SaveToXml(XmlWriter x)
 		{
 			x.WriteStartElement("BaseLocation");
-			x.WriteAttributeString("x", BaseLocation.X.ToString());
-			x.WriteAttributeString("y", BaseLocation.Y.ToString());
+			x.WriteAttributeString("x", baseX.ToString());
+			x.WriteAttributeString("y", baseY.ToString());
 			x.WriteAttributeString("delta", MovingDelta.ToString());
 			x.WriteEndElement();
 

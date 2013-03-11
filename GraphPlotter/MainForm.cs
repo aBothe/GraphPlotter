@@ -90,6 +90,22 @@ namespace GraphPlotter
 
 
 
+
+			s = new MenuItem("View");
+			m.Items.Add(s);
+
+			ss = new Menu();
+			s.SubMenu = ss;
+
+			b = new CheckBoxMenuItem("Settings overlay") { Checked = true };
+			b.Clicked += (sender, ea) => plot.SettingsOverlayVisible = (sender as CheckBoxMenuItem).Checked;
+			ss.Items.Add(b);
+
+			b = new CheckBoxMenuItem("Function editing overlay") { Checked = true };
+			b.Clicked += (sender, ea) => plot.FunctionOverlayVisible = (sender as CheckBoxMenuItem).Checked;
+			ss.Items.Add(b);
+
+
 			s = new MenuItem("Tools");
 			m.Items.Add(s);
 

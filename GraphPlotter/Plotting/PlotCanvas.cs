@@ -13,10 +13,23 @@ namespace GraphPlotter.Plotting
 	class PlotCanvas : Canvas
 	{
 		#region Properties
-		HBox funcOverlayBox;
+		readonly HBox funcOverlayBox;
+		readonly SettingsOverlay settingsOverlay;
+		readonly FunctionEditingOverlay funcOverlay;
 		bool updatingGraphEntries;
 
-		public PlotCanvasOptions Options;
+		public readonly PlotCanvasOptions Options;
+
+		public bool SettingsOverlayVisible { 
+			get { return settingsOverlay.Visible; }
+			set { settingsOverlay.Visible = value; }
+		}
+
+		public bool FunctionOverlayVisible
+		{
+			get { return funcOverlay.Visible; }
+			set { funcOverlay.Visible = value; }
+		}
 		#endregion
 
 		#region Constructor/Init
@@ -29,8 +42,8 @@ namespace GraphPlotter.Plotting
 			funcOverlayBox = new HBox();
 			AddChild(funcOverlayBox);
 
-			funcOverlayBox.PackStart(new SettingsOverlay(this), BoxMode.Fill);
-			funcOverlayBox.PackEnd(new FunctionEditingOverlay(this), BoxMode.Fill);
+			funcOverlayBox.PackStart(settingsOverlay = new SettingsOverlay(this), BoxMode.Fill);
+			funcOverlayBox.PackEnd(funcOverlay = new FunctionEditingOverlay(this), BoxMode.Fill);
 
 			Options.Functions.CollectionChanged += Graphs_CollectionChanged;
 			
@@ -293,9 +306,8 @@ namespace GraphPlotter.Plotting
 		public void CenterBaseLocation(bool redraw = true)
 		{
 			var sz = Size;
-			var newX = -(sz.Width / (2 * PlotCanvasOptions.DotsPerCentimeter * Options.Scale_X));
-			var newY = sz.Height / (2 * PlotCanvasOptions.DotsPerCentimeter * Options.Scale_Y);
-			Options.BaseLocation = new Point(newX, newY);
+			Options.BaseLocation_X = -(sz.Width / (2 * PlotCanvasOptions.DotsPerCentimeter * Options.Scale_X));
+			Options.BaseLocation_Y = sz.Height / (2 * PlotCanvasOptions.DotsPerCentimeter * Options.Scale_Y);
 
 			if (redraw)
 				Redraw();
@@ -338,9 +350,8 @@ namespace GraphPlotter.Plotting
 
 			if (moving)
 			{
-				var newX = (triggerPos.X - args.X) / (PlotCanvasOptions.DotsPerCentimeter * Options.Scale_X);
-				var newY = (args.Y - triggerPos.Y) / (PlotCanvasOptions.DotsPerCentimeter * Options.Scale_Y);
-				Options.BaseLocation = Options.BaseLocation.Offset(newX, newY);
+				Options.BaseLocation_X = Options.BaseLocation_X + (triggerPos.X - args.X) / (PlotCanvasOptions.DotsPerCentimeter * Options.Scale_X);
+				Options.BaseLocation_Y = Options.BaseLocation_Y + (args.Y - triggerPos.Y) / (PlotCanvasOptions.DotsPerCentimeter * Options.Scale_Y);
 				triggerPos = new Point(args.X, args.Y);
 
 				Redraw();
@@ -366,7 +377,7 @@ namespace GraphPlotter.Plotting
 							Options.Scale_Y = PlotCanvasOptions.Scale_Min;
 					}
 					else
-						Options.BaseLocation.Y -= MovingDelta / Options.Scale_Y;
+						Options.BaseLocation_Y -= MovingDelta / Options.Scale_Y;
 					break;
 				case ScrollDirection.Up:
 					if (scaleOnScroll)
@@ -375,13 +386,13 @@ namespace GraphPlotter.Plotting
 						Options.Scale_Y += ScalingDelta;
 					}
 					else
-						Options.BaseLocation.Y += MovingDelta / Options.Scale_Y;
+						Options.BaseLocation_Y += MovingDelta / Options.Scale_Y;
 					break;
 				case ScrollDirection.Left:
-					Options.BaseLocation.X -= MovingDelta / Options.Scale_X;
+					Options.BaseLocation_X -= MovingDelta / Options.Scale_X;
 					break;
 				case ScrollDirection.Right:
-					Options.BaseLocation.X += MovingDelta / Options.Scale_X;
+					Options.BaseLocation_X += MovingDelta / Options.Scale_X;
 					break;
 			}
 
@@ -402,16 +413,16 @@ namespace GraphPlotter.Plotting
 					scaleOnScroll = true;
 					return;
 				case Key.Left:
-					Options.BaseLocation.X -= MovingDelta / Options.Scale_X;
+					Options.BaseLocation_X -= MovingDelta / Options.Scale_X;
 					break;
 				case Key.Right:
-					Options.BaseLocation.X += MovingDelta / Options.Scale_X;
+					Options.BaseLocation_X += MovingDelta / Options.Scale_X;
 					break;
 				case Key.Up:
-					Options.BaseLocation.Y += MovingDelta / Options.Scale_Y;
+					Options.BaseLocation_Y += MovingDelta / Options.Scale_Y;
 					break;
 				case Key.Down:
-					Options.BaseLocation.Y -= MovingDelta / Options.Scale_Y;
+					Options.BaseLocation_Y -= MovingDelta / Options.Scale_Y;
 					break;
 			}
 
