@@ -34,8 +34,27 @@ namespace GraphPlotter.Plotting
 		}
 		public double BaseLocation_X { get { return baseX; } set { baseX = value; propChanged("BaseLocation_X"); } }
 		public double BaseLocation_Y { get { return baseY; } set { baseY = value; propChanged("BaseLocation_Y"); } }
-		public double Scale_X { get { return scaleX; } set { scaleX = value; propChanged("Scale_X"); } }
-		public double Scale_Y { get { return scaleY; } set { scaleY = value; propChanged("Scale_Y"); } }
+		public double Scale_X 
+		{ 
+			get { return scaleX; } 
+			set { 
+				scaleX = value;
+				if (value < Scale_Min)
+					scaleX = Scale_Min;
+				propChanged("Scale_X"); 
+			} 
+		}
+		public double Scale_Y
+		{
+			get { return scaleY; }
+			set
+			{
+				scaleY = value;
+				if (value < Scale_Min)
+					scaleY = Scale_Min;
+				propChanged("Scale_Y");
+			}
+		}
 
 		
 		public const double Scale_Min = 0.4;
@@ -91,7 +110,7 @@ namespace GraphPlotter.Plotting
 			RestoreDefaultScaling();
 
 			MovingDelta = 1;
-			ScalingDelta = 0.1;
+			ScalingDelta = 1.1;
 
 			CalculationDensity = 2;
 

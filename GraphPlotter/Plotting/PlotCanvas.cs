@@ -368,13 +368,8 @@ namespace GraphPlotter.Plotting
 				case ScrollDirection.Down:
 					if (scaleOnScroll)
 					{
-						Options.Scale_X -= ScalingDelta;
-						Options.Scale_Y -= ScalingDelta;
-
-						if (Options.Scale_X < PlotCanvasOptions.Scale_Min)
-							Options.Scale_X = PlotCanvasOptions.Scale_Min;
-						if (Options.Scale_Y < PlotCanvasOptions.Scale_Min)
-							Options.Scale_Y = PlotCanvasOptions.Scale_Min;
+						Options.Scale_X /= ScalingDelta;
+						Options.Scale_Y /= ScalingDelta;
 					}
 					else
 						Options.BaseLocation_Y -= MovingDelta / Options.Scale_Y;
@@ -382,8 +377,8 @@ namespace GraphPlotter.Plotting
 				case ScrollDirection.Up:
 					if (scaleOnScroll)
 					{
-						Options.Scale_X += ScalingDelta;
-						Options.Scale_Y += ScalingDelta;
+						Options.Scale_X *= ScalingDelta;
+						Options.Scale_Y *= ScalingDelta;
 					}
 					else
 						Options.BaseLocation_Y += MovingDelta / Options.Scale_Y;
