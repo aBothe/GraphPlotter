@@ -111,15 +111,20 @@ namespace GraphPlotter.Plotting
 							string errText;
 							var expression = ParseExpressionString(x.ReadString(), out errText);
 
-							if (errText != null || expression == null)
-								return null;
+							if (errText == null && expression != null)
+							{
+								f.UpdateExpression(expression);
+								continue;
+							}
 
-							f.UpdateExpression(expression);
+							Xwt.MessageDialog.ShowError("Error while parsing function expression", errText);
 						}
-						catch {
-							return null;
+						catch(Exception ex) {
+							Xwt.MessageDialog.ShowError("Error while parsing function expression", ex.Message);
 						}
-						break;
+
+						while (x.Read()) ;
+						return null;
 				}
 			}
 			return f;
