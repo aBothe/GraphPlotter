@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xwt;
+using Xwt.Drawing;
 
 namespace GraphPlotter.Plotting
 {
 	class SettingsOverlay : Widget
 	{
 		public readonly PlotCanvas Plot;
-		TextEntry text_BaseX = new TextEntry(), text_BaseY = new TextEntry();
-		TextEntry text_ScaleX = new TextEntry(), text_ScaleY = new TextEntry();
-		TextEntry text_TickDensX = new TextEntry(), text_TickDensY = new TextEntry(), text_CalcDensity = new TextEntry();
+		TextEntry text_BaseX = new TextEntry { ShowFrame = false }, text_BaseY = new TextEntry { ShowFrame = false };
+		TextEntry text_ScaleX = new TextEntry { ShowFrame = false }, text_ScaleY = new TextEntry { ShowFrame = false };
+		TextEntry text_TickDensX = new TextEntry { ShowFrame = false }, text_TickDensY = new TextEntry { ShowFrame = false }, text_CalcDensity = new TextEntry { ShowFrame = false };
 
 		public SettingsOverlay(PlotCanvas plot)
 		{
@@ -23,13 +24,22 @@ namespace GraphPlotter.Plotting
 			var font = text_BaseX.Font.WithPointSize(8);
 			var labelFont = font.WithPointSize(9).WithWeight(Xwt.Drawing.FontWeight.Semibold);
 
-			
+			#region Set up text boxes
+			foreach (var tb in new[] { text_BaseX, text_BaseY, text_ScaleX, text_ScaleY, text_TickDensX, text_TickDensY, text_CalcDensity })
+			{
+				tb.Font = font;
+				tb.BackgroundColor = Colors.Transparent;
+				tb.GotFocus += text_BaseX_GotFocus;
+				tb.LostFocus += text_BaseX_LostFocus;
+			}
+			#endregion
+
 			var mainBox = new VBox();
 			Content = mainBox;
 
 			mainBox.PackStart(new Label("Base location (X/Y)") { Font = labelFont });
-			text_BaseX.Font = font; text_BaseX.Text = plot.Options.BaseLocation_X.ToString();
-			text_BaseY.Font = font; text_BaseY.Text = plot.Options.BaseLocation_Y.ToString();
+			text_BaseX.Text = plot.Options.BaseLocation_X.ToString();
+			text_BaseY.Text = plot.Options.BaseLocation_Y.ToString();
 			var hb = new HBox();
 			mainBox.PackStart(hb, BoxMode.Fill);
 			hb.PackStart(text_BaseX);
@@ -47,8 +57,8 @@ namespace GraphPlotter.Plotting
 
 
 			mainBox.PackStart(new Label("Scaling (X/Y)") { Font = labelFont });
-			text_ScaleX.Font = font; text_ScaleX.Text = plot.Options.Scale_X.ToString();
-			text_ScaleY.Font = font; text_ScaleY.Text = plot.Options.Scale_Y.ToString();
+			text_ScaleX.Text = plot.Options.Scale_X.ToString();
+			text_ScaleY.Text = plot.Options.Scale_Y.ToString();
 			hb = new HBox();
 			mainBox.PackStart(hb, BoxMode.Fill);
 			hb.PackStart(text_ScaleX);
@@ -67,8 +77,8 @@ namespace GraphPlotter.Plotting
 
 
 			mainBox.PackStart(new Label("Tick density (X/Y)") { Font = labelFont });
-			text_TickDensX.Font = font; text_TickDensX.Text = plot.Options.TickDensity_XAxis.ToString();
-			text_TickDensY.Font = font; text_TickDensY.Text = plot.Options.TickDensity_YAxis.ToString();
+			text_TickDensX.Text = plot.Options.TickDensity_XAxis.ToString();
+			text_TickDensY.Text = plot.Options.TickDensity_YAxis.ToString();
 			hb = new HBox();
 			mainBox.PackStart(hb, BoxMode.Fill);
 			hb.PackStart(text_TickDensX);
@@ -87,7 +97,7 @@ namespace GraphPlotter.Plotting
 
 
 			mainBox.PackStart(new Label("Calculation density (Pixel)") { Font = labelFont });
-			text_CalcDensity.Font = font; text_CalcDensity.Text = plot.Options.CalculationDensity.ToString();
+			text_CalcDensity.Text = plot.Options.CalculationDensity.ToString();
 			text_CalcDensity.MarginLeft = 5;
 			hb = new HBox();
 			mainBox.PackStart(hb, BoxMode.Fill);
@@ -103,6 +113,16 @@ namespace GraphPlotter.Plotting
 				}
 			};
 			hb.PackStart(b);
+		}
+
+		void text_BaseX_LostFocus(object sender, EventArgs e)
+		{
+			(sender as TextEntry).BackgroundColor = Colors.Transparent;
+		}
+
+		void text_BaseX_GotFocus(object sender, EventArgs e)
+		{
+			(sender as TextEntry).BackgroundColor = Colors.White;
 		}
 
 		void Options_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
