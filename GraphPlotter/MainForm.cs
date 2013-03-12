@@ -106,6 +106,10 @@ namespace GraphPlotter
 			b.Clicked += (sender, ea) => plot.FunctionOverlayVisible = (sender as CheckBoxMenuItem).Checked;
 			ss.Items.Add(b);
 
+			b = new CheckBoxMenuItem("Grid lines") { Checked = true };
+			b.Clicked += (sender, ea) => { plot.Options.gridThickness = (sender as CheckBoxMenuItem).Checked ? 1 : 0; plot.Redraw(); };
+			ss.Items.Add(b);
+
 
 			s = new MenuItem("Tools");
 			m.Items.Add(s);
