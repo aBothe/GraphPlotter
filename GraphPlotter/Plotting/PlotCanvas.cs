@@ -457,7 +457,7 @@ namespace GraphPlotter.Plotting
 			}
 
 			var w = Size;
-			SetChildBounds(funcOverlayBox,new Rectangle(0,0,w.Width, funcOverlayBox.Size.Height));
+			SetChildBounds(funcOverlayBox,new Rectangle(0,0,w.Width, w.Height));
 		}
 		#endregion
 	}
