@@ -182,9 +182,11 @@ namespace GraphPlotter.Plotting
 				PropertyChanged(this, new PropertyChangedEventArgs("CompiledExpression"));
 		}
 
+		object[] calcArgs = new[] { (object)0.0 };
 		public double Calculate(double x)
 		{
-			return (double)CompiledExpression.Invoke(null, new[] { (object)x });
+			calcArgs[0] = x;
+			return (double)CompiledExpression.Invoke(null, calcArgs);
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
