@@ -68,8 +68,8 @@ namespace GraphPlotter.Plotting
 		public double YMultiplier { get { return DotsPerCentimeter * Scale_Y; } }
 
 		public int CalculationDensity { get { return calculationDensity; } set { calculationDensity = value; propChanged("CalculationDensity"); } }
-		public double TickDensity_XAxis { get { return tickDensX; } set { tickDensX = value; propChanged("TickDensity_XAxis"); } }
-		public double TickDensity_YAxis { get { return tickDensY; } set { tickDensY = value; propChanged("TickDensity_YAxis"); } }
+		public double TickDensity_XAxis { get { return tickDensX; } set { tickDensX = value; propChanged("TickDensity_X"); } }
+		public double TickDensity_YAxis { get { return tickDensY; } set { tickDensY = value; propChanged("TickDensity_Y"); } }
 
 		public readonly TextLayout tickLabelFont;
 		public Color axisColor;
