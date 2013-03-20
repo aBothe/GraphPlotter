@@ -22,6 +22,7 @@ namespace GraphPlotter.Plotting
 
 		public FunctionInputDialog(Function f = null)
 		{
+			Title = (f == null ? "Create new":"Edit ") + " function";
 			Function = f;
 
 			this.Buttons.Add(Command.Ok);
