@@ -88,8 +88,7 @@ namespace GraphPlotter.Plotting
 		{
 			using (var imgBuilder = new Xwt.Drawing.ImageBuilder(
 				Math.Max(width, (int)Size.Width),
-				Math.Max(height, (int)Size.Height),
-				ImageFormat.ARGB32))
+				Math.Max(height, (int)Size.Height)))
 			{
 				clearBackground = fillBackground;
 				// Backup, set and reset calculation density to 1 to achieve maximum render performance
@@ -100,7 +99,7 @@ namespace GraphPlotter.Plotting
 
 				Options.CalculationDensity = density_Backup;
 
-				return imgBuilder.ToImage();
+				return imgBuilder.ToVectorImage();
 			}
 		}
 

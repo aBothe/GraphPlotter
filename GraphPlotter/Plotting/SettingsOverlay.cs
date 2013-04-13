@@ -21,8 +21,8 @@ namespace GraphPlotter.Plotting
 
 			NaturalWidth = 130;
 
-			var font = text_BaseX.Font.WithPointSize(8);
-			var labelFont = font.WithPointSize(9).WithWeight(Xwt.Drawing.FontWeight.Semibold);
+			var font = text_BaseX.Font.WithSize(8);
+			var labelFont = font.WithSize(9).WithWeight(Xwt.Drawing.FontWeight.Semibold);
 
 			#region Set up text boxes
 			foreach (var tb in new[] { text_BaseX, text_BaseY, text_ScaleX, text_ScaleY, text_TickDensX, text_TickDensY, text_CalcDensity })

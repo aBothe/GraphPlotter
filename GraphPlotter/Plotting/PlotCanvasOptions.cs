@@ -123,7 +123,7 @@ namespace GraphPlotter.Plotting
 			gridColor = Color.FromBytes(0xee, 0xee, 0xee);
 			gridThickness = 1;
 
-			tickLabelFont.Font = tickLabelFont.Font.WithPointSize(7);
+			tickLabelFont.Font = tickLabelFont.Font.WithSize(7);
 		}
 
 		public void LoadSettingsFromXml(XmlReader x)
