@@ -118,8 +118,11 @@ namespace GraphPlotter
 			s.SubMenu = ss;
 
 			b = new MenuItem("Clear functions");
-			b.Clicked += (sender, ea) => 
-				plot.Options.Functions.Clear();
+			b.Clicked += (sender, ea) =>
+			{
+				if (MessageDialog.AskQuestion("Really clear all entered functions?", 0, Command.No, Command.Yes) == Command.Yes)
+					plot.Options.Functions.Clear();
+			};
 			ss.Items.Add(b);
 
 			b = new MenuItem("Center origin");
