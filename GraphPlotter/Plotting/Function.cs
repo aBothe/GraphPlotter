@@ -86,7 +86,7 @@ namespace GraphPlotter.Plotting
 			string errText;
 			var x = ParseExpressionString(expression, out errText);
 			if (errText != null)
-				throw new Exception(errText);
+				throw new InvalidExpressionException(errText);
 			f.UpdateExpression(x);
 			return f;
 		}
@@ -186,7 +186,11 @@ namespace GraphPlotter.Plotting
 		public double Calculate(double x)
 		{
 			calcArgs[0] = x;
-			return (double)CompiledExpression.Invoke(null, calcArgs);
+			try
+			{
+				return (double)CompiledExpression.Invoke(null, calcArgs);
+			}
+			catch { return double.NaN; }
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

@@ -279,13 +279,17 @@ namespace GraphPlotter.Plotting
 							y = y_max;
 						else
 						{
-							ctxt.LineTo(px, (y- y_max) * y_multiplier);
+							ctxt.LineTo(px, (y - y_max) * y_multiplier);
 							continue;
 						}
 					}
 					catch (DivideByZeroException ex)
 					{
 						x += x_delta;
+					}
+					catch
+					{
+						break;
 					}
 
 					ctxt.MoveTo(px, (y - y_max) * y_multiplier);
