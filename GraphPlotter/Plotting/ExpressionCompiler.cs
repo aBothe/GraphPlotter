@@ -117,6 +117,9 @@ namespace GraphPlotter.Plotting
 				case DTokens.Pow:
 					ilGen.EmitCall(OpCodes.Call, MathPow, null);
 					break;
+				case DTokens.Mod:
+					ilGen.Emit(OpCodes.Rem);
+					break;
 
 					// Bin ops
 
@@ -247,6 +250,8 @@ namespace GraphPlotter.Plotting
 					return lv / rv;
 				case DTokens.Pow:
 					return Math.Pow(lv, rv);
+				case DTokens.Mod:
+					return lv % rv;
 				default:
 					throw new InvalidOperationException("Invalid math op ("+DTokens.GetTokenString(opToken)+")");
 			}
