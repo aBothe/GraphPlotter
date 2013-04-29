@@ -35,6 +35,10 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="D_Parser, Version=1.0.4864.12214, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ext\D_Parser.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -74,12 +78,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\D_Parser\DParser2\DParser2.csproj">
-      <Project>{0290a229-9aa1-41c3-b525-cafb86d8bc42}</Project>
-      <Name>DParser2</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="architecture.txt" />

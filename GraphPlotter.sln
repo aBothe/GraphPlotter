@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphPlotter", "GraphPlotter\GraphPlotter.csproj", "{5818ADD4-B8EB-4B07-8503-8A4F504BB3EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DParser2", "..\D_Parser\DParser2\DParser2.csproj", "{0290A229-9AA1-41C3-B525-CAFB86D8BC42}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,14 +17,6 @@ Global
 		{5818ADD4-B8EB-4B07-8503-8A4F504BB3EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5818ADD4-B8EB-4B07-8503-8A4F504BB3EE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5818ADD4-B8EB-4B07-8503-8A4F504BB3EE}.Release|x86.ActiveCfg = Release|Any CPU
-		{0290A229-9AA1-41C3-B525-CAFB86D8BC42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0290A229-9AA1-41C3-B525-CAFB86D8BC42}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0290A229-9AA1-41C3-B525-CAFB86D8BC42}.Debug|x86.ActiveCfg = Debug|x86
-		{0290A229-9AA1-41C3-B525-CAFB86D8BC42}.Debug|x86.Build.0 = Debug|x86
-		{0290A229-9AA1-41C3-B525-CAFB86D8BC42}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0290A229-9AA1-41C3-B525-CAFB86D8BC42}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0290A229-9AA1-41C3-B525-CAFB86D8BC42}.Release|x86.ActiveCfg = Release|x86
-		{0290A229-9AA1-41C3-B525-CAFB86D8BC42}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
