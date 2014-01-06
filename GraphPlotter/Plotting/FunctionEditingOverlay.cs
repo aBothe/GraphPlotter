@@ -105,7 +105,7 @@ namespace GraphPlotter.Plotting
 				PackStart(funcText, BoxMode.FillAndExpand);
 
 				var m = new Menu();
-				PackEnd(new MenuButton((string)null){ TooltipText = "Edit function", NaturalWidth=23, Menu = m });
+				PackEnd(new MenuButton((string)null){ TooltipText = "Edit function", WidthRequest = 23, Menu = m });
 
 				var cb = new CheckBoxMenuItem("Visible") { Checked = Function.Visible };
 				m.Items.Add(cb);

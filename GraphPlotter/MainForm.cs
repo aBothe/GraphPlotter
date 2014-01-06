@@ -37,8 +37,8 @@ namespace GraphPlotter
 
 		#region Init/Constructor
 		public MainForm()
-			: base(WindowTitle)
 		{
+			Title = WindowTitle;
 			BuildMenu();
 			BuildGui();
 

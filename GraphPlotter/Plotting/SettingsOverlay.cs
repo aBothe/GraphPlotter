@@ -19,7 +19,7 @@ namespace GraphPlotter.Plotting
 			Plot = plot;
 			plot.Options.PropertyChanged += Options_PropertyChanged;
 
-			NaturalWidth = 130;
+			WidthRequest = 130;
 
 			var font = text_BaseX.Font.WithSize(8);
 			var labelFont = font.WithSize(9).WithWeight(Xwt.Drawing.FontWeight.Semibold);

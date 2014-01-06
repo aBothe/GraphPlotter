@@ -8,7 +8,7 @@ namespace GraphPlotter
 		[STAThread]
 		static void Main()
 		{
-			Application.Initialize(ToolkitType.Wpf);
+			Application.Initialize(ToolkitType.Gtk);
 			var main = new MainForm();
 			Application.Run();
 			main.Dispose();
