@@ -158,6 +158,8 @@ namespace GraphPlotter
 			if (cmd == Command.Yes)
 				Save();
 
+			Application.Exit ();
+
 			return base.OnCloseRequested();
 		}
 		#endregion
