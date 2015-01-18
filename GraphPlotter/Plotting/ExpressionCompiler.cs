@@ -336,7 +336,7 @@ namespace GraphPlotter.Plotting
 					throw new ArgumentException("Method Identifier expected.");
 
 				MethodInfo mi;
-				if (!SingleArgMathFunctions.TryGetValue((idx.Value as string).ToLower(), out mi))
+				if (!SingleArgMathFunctions.TryGetValue(idx.StringValue.ToLower(), out mi))
 				{
 					var sb = new StringBuilder("Unknown method. Only ");
 
@@ -364,7 +364,7 @@ namespace GraphPlotter.Plotting
 			d = 0;
 			if(x.IsIdentifier)
 			{
-				var id = x.Value as String;
+				var id = x.StringValue;
 				if (id == "x")
 					return false;
 				else if (Constants.TryGetValue(id, out d))
@@ -386,7 +386,7 @@ namespace GraphPlotter.Plotting
 
 		public void Visit(IdentifierExpression x)
 		{
-			if (x.IsIdentifier && (x.Value as string) == "x")
+			if (x.IsIdentifier && x.StringValue == "x")
 				ilGen.Emit(OpCodes.Ldarg_0);
 			else
 			{
@@ -423,7 +423,7 @@ namespace GraphPlotter.Plotting
 			throw new NotImplementedException();
 		}
 
-		public void Visit(IdendityExpression x)
+		public void Visit(IdentityExpression x)
 		{
 			throw new NotImplementedException();
 		}
@@ -441,6 +441,11 @@ namespace GraphPlotter.Plotting
 		public void Visit(UnaryExpression_Type x)
 		{
 			throw new NotImplementedException();
+		}
+
+		public void Visit(UnaryExpression_SegmentBase x)
+		{
+			throw new NotImplementedException ();
 		}
 
 		public void Visit(NewExpression x)
@@ -468,12 +473,7 @@ namespace GraphPlotter.Plotting
 			throw new NotImplementedException();
 		}
 
-		public void Visit(PostfixExpression_Index x)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Visit(PostfixExpression_Slice x)
+		public void Visit(PostfixExpression_ArrayAccess x)
 		{
 			throw new NotImplementedException();
 		}
@@ -556,6 +556,11 @@ namespace GraphPlotter.Plotting
 		public void Visit(StructMemberInitializer structMemberInitializer)
 		{
 			throw new NotImplementedException();
+		}
+
+		public void Visit(AsmRegisterExpression x)
+		{
+			throw new NotImplementedException ();
 		}
 		#endregion
 	}
