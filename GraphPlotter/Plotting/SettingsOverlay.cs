@@ -20,6 +20,7 @@ namespace GraphPlotter.Plotting
 			plot.Options.PropertyChanged += Options_PropertyChanged;
 
 			WidthRequest = 130;
+			BackgroundColor = Colors.Transparent;
 
 			var font = text_BaseX.Font.WithSize(8);
 			var labelFont = font.WithSize(9).WithWeight(Xwt.Drawing.FontWeight.Semibold);

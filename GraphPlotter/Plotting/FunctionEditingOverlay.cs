@@ -19,6 +19,7 @@ namespace GraphPlotter.Plotting
 			Plot = plot;
 
 			MarginRight = 10;
+			BackgroundColor = Colors.Transparent;
 
 			plot.Options.Functions.CollectionChanged += Functions_CollectionChanged;
 

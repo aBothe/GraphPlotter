@@ -46,7 +46,7 @@ namespace GraphPlotter.Plotting
 			funcOverlayBox.PackEnd(funcOverlay = new FunctionEditingOverlay(this), BoxMode.Fill);
 
 			Options.Functions.CollectionChanged += Graphs_CollectionChanged;
-			
+			BackgroundColor = Colors.White;
 
 
 			BeginUpdateGraphs();

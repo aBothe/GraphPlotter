@@ -145,6 +145,7 @@ namespace GraphPlotter
 		{
 			Height = 600;
 			Width = 900;
+			Padding = 0;
 			Content = plot;
 		}
 
